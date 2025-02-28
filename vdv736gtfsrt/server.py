@@ -3,6 +3,7 @@ import logging
 import pytz
 import yaml
 
+from contextlib import asynccontextmanager
 from datetime import datetime
 from fastapi import APIRouter
 from fastapi import FastAPI
@@ -44,7 +45,7 @@ class GtfsRealtimeServer:
             raise ValueError(f"unknown adapter type {self._config['app']['adapter']['type']}")
 
         # create API instance
-        self._fastapi = FastAPI()
+        self._fastapi = FastAPI(lifespan=self._lifespan)
         self._api_router = APIRouter()
 
         self._api_router.add_api_route(
@@ -64,6 +65,15 @@ class GtfsRealtimeServer:
 
         # create logger instance
         self._logger = logging.getLogger('uvicorn')
+
+    @asynccontextmanager
+    async def _lifespan(self, app):
+
+        self._logger.info('Started')
+
+        yield
+
+        self._logger.info('Ended')
 
     async def _endpoint(self, request: Request) -> Response:
         
