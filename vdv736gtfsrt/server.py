@@ -114,6 +114,9 @@ class GtfsRealtimeServer:
         }
     
     def _default_config(self, config):
+        # some of the default config keys are commented in order to force
+        # the user to provide these configurations actively
+        
         default_config = {
             'app': {
                 #'adapter': {
