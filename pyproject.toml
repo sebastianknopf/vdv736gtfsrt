@@ -11,6 +11,7 @@ license = {text = "Apache License (2.0)"}
 dependencies = [
     "click",
     "fastapi[all]",
+    "gtfs-realtime-bindings",
     "lxml",
     "memcache",
     "pytz",
