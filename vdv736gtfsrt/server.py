@@ -36,7 +36,7 @@ class GtfsRealtimeServer:
 
         self._api_router.add_api_route(
             self._config['app']['endpoint'], 
-            endpoint=self._index, 
+            endpoint=self._endpoint, 
             methods=['GET']
         )
 
@@ -52,7 +52,7 @@ class GtfsRealtimeServer:
         # create logger instance
         self._logger = logging.getLogger('uvicorn')
 
-    async def _index(self, request: Request) -> Response:
+    async def _endpoint(self, request: Request) -> Response:
         
         # check whether there're cached data
         format = request.query_params['f'] if 'f' in request.query_params else 'pbf'
