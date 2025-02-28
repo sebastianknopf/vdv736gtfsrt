@@ -1,0 +1,22 @@
+# see https://github.com/sebastianknopf/pyvdv736 for reference 
+PY_TEST_SUBSCRIBER:
+  host: "127.0.0.1"
+  port: 9090
+  protocol: http
+  single_endpoint: null
+  status_endpoint: null
+  subscribe_endpoint: null
+  unsubscribe_endpoint: null
+  request_endpoint: null
+  delivery_endpoint: /delivery
+
+PY_TEST_PUBLISHER:
+  host: "127.0.0.1"
+  port: 9091
+  protocol: http
+  single_endpoint: null
+  status_endpoint: /status
+  subscribe_endpoint: /subscribe
+  unsubscribe_endpoint: /unsubscribe
+  request_endpoint: /request
+  delivery_endpoint: null
