@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vdv736-gtfsrt"
+description = "A VDV736 compatible GTFSRT ServiceAlerts server."
+authors = [{ name = "Sebastian Knopf", email = "mail@sebastian-knopf.de" }]
+readme = "README.md"
+license = {text = "Apache License (2.0)"}
+dependencies = [
+    "click",
+    "fastapi[all]",
+    "lxml",
+    "memcache",
+    "pytz",
+    "pyvdv736",
+    "pyyaml",
+    "uvicorn",
+]
+requires-python = ">=3.10"
+
+dynamic = ["version"]
+
+[tool.setuptools]
+packages = ["vdv736gtfsrt"]
+
+[tool.setuptools.package-dir]
+vdv736gtfsrt = "vdv736gtfsrt"
+
+[tool.setuptools_scm]
+write_to = "vdv736gtfsrt/version.py"
