@@ -206,6 +206,7 @@ pip-selfcheck.json
 
 # Project Specific
 /config/dev.yaml
+/config/dev_participants.yaml
 /datalog/*
 
 vdv736gtfsrt/version.py
