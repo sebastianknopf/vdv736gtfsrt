@@ -1,4 +1,4 @@
 app:
   adapter:
     type: 'nvbw.ems'
-  participants: 'participants.yaml'
+  participants: './config/participants.yaml'

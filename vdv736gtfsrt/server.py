@@ -1,9 +1,9 @@
-import datetime
 import json
 import logging
 import pytz
 import yaml
 
+from datetime import datetime
 from fastapi import APIRouter
 from fastapi import FastAPI
 from fastapi import Request
@@ -22,6 +22,19 @@ class GtfsRealtimeServer:
             self._config = yaml.safe_load(config_file)
 
         self._config = self._default_config(self._config)
+
+        # check for required non-default configs
+        if 'app' not in self._config:
+            raise ValueError("required config key 'app' missing")
+        
+        if 'adapter' not in self._config['app']:
+            raise ValueError("required config key 'app.adapter' missing")
+
+        if 'type' not in self._config['app']['adapter']:
+            raise ValueError("required config key 'app.adapter.type' missing")
+
+        if 'participants' not in self._config['app']:
+            raise ValueError("required config key 'app.participants' missing")
 
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
@@ -103,11 +116,12 @@ class GtfsRealtimeServer:
     def _default_config(self, config):
         default_config = {
             'app': {
-                'adapter': {
-                    'type': 'nvbw.ems'
-                },
+                #'adapter': {
+                #    'type': 'nvbw.ems'
+                #},
                 'endpoint': '/gtfsrt-service-alerts.pbf',
-                'participants': 'participants.yaml',
+                #'participants': 'participants.yaml',
+                'timezone': 'Europe/Berlin',
                 'caching_enabled': False
             },
             'caching': {
