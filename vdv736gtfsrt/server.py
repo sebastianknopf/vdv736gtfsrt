@@ -13,6 +13,7 @@ from google.transit import gtfs_realtime_pb2
 from google.protobuf.message import DecodeError
 from google.protobuf.json_format import ParseDict
 from math import floor
+from vdv736.subscriber import Subscriber
 
 class GtfsRealtimeServer:
 
@@ -36,6 +37,12 @@ class GtfsRealtimeServer:
 
         if 'participants' not in self._config['app']:
             raise ValueError("required config key 'app.participants' missing")
+        
+        if 'subscriber' not in self._config['app']:
+            raise ValueError("required config key 'app.subscriber' missing")
+        
+        if 'publisher' not in self._config['app']:
+            raise ValueError("required config key 'app.publisher' missing")
 
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
@@ -66,14 +73,21 @@ class GtfsRealtimeServer:
         # create logger instance
         self._logger = logging.getLogger('uvicorn')
 
+        # class container for subscriber
+        self._subscriber = None
+
     @asynccontextmanager
     async def _lifespan(self, app):
+        with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
+            self._subscriber = subscriber
 
-        self._logger.info('Started')
+            # subscribe at the defined publisher
+            self._subscriber.subscribe(self._config['app']['publisher'])
 
-        yield
-
-        self._logger.info('Ended')
+            # wait here for GtfsRealtimeServer server's termination
+            # all subscriptions will terminate while exiting the context of 
+            # the subscriber - no need to do anything else here
+            yield
 
     async def _endpoint(self, request: Request) -> Response:
         
@@ -91,6 +105,9 @@ class GtfsRealtimeServer:
                 return Response(content=cached_response, media_type=mime_type)
             
         # render objects out of current messages
+        situations = self._subscriber.get_situations()
+        print(situations)
+
         objects = []
 
         # send response
@@ -134,6 +151,8 @@ class GtfsRealtimeServer:
                 #},
                 'endpoint': '/gtfsrt-service-alerts.pbf',
                 #'participants': 'participants.yaml',
+                #'subscriber': 'PY_TEST_SUBSCRIBER',
+                #'publisher': 'PY_TEST_PUBLISHER',
                 'timezone': 'Europe/Berlin',
                 'caching_enabled': False
             },

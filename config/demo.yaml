@@ -2,3 +2,5 @@ app:
   adapter:
     type: 'nvbw.ems'
   participants: './config/participants.yaml'
+  subscriber: PY_TEST_SUBSCRIBER
+  publisher: PY_TEST_PUBLISHER
