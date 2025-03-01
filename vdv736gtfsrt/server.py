@@ -15,6 +15,8 @@ from google.protobuf.json_format import ParseDict
 from math import floor
 from vdv736.subscriber import Subscriber
 
+from .repeatedtimer import RepeatedTimer
+
 class GtfsRealtimeServer:
 
     def __init__(self, config_filename: str) -> None:
@@ -75,6 +77,7 @@ class GtfsRealtimeServer:
 
         # class container for subscriber
         self._subscriber = None
+        self._subscriber_status_timer = None
 
     @asynccontextmanager
     async def _lifespan(self, app):
@@ -84,10 +87,20 @@ class GtfsRealtimeServer:
             # subscribe at the defined publisher
             self._subscriber.subscribe(self._config['app']['publisher'])
 
+            # start internal repeated timer for subscriber's status requests
+            self._subscriber_status_timer = RepeatedTimer(self._config['app']['status_request_interval'], self._subscriber_status_request)
+            self._subscriber_status_timer.start()
+
             # wait here for GtfsRealtimeServer server's termination
+            yield
+
+            self._logger.info('Shutting down GtfsRealtimeServer')
+
+            # terminate subscribers status timer
+            self._subscriber_status_timer.stop()
+
             # all subscriptions will terminate while exiting the context of 
             # the subscriber - no need to do anything else here
-            yield
 
     async def _endpoint(self, request: Request) -> Response:
         
@@ -127,6 +140,10 @@ class GtfsRealtimeServer:
 
             return Response(content=pbf_result, media_type='application/octet-stream')
 
+    def _subscriber_status_request(self):
+        if self._subscriber is not None:
+            self._subscriber.status()
+    
     def _create_feed_message(self, entities):
         timestamp = datetime.now().astimezone(pytz.timezone(self._config['app']['timezone'])).timestamp()
         timestamp = floor(timestamp)
@@ -153,6 +170,7 @@ class GtfsRealtimeServer:
                 #'participants': 'participants.yaml',
                 #'subscriber': 'PY_TEST_SUBSCRIBER',
                 #'publisher': 'PY_TEST_PUBLISHER',
+                'status_request_interval': 300,
                 'timezone': 'Europe/Berlin',
                 'caching_enabled': False
             },
