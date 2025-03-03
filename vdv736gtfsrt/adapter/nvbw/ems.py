@@ -7,13 +7,13 @@ from ..adapter import BaseAdapter
 
 class EmsAdapter(BaseAdapter):
 
-    def __init__(self):
-        pass
+    def __init__(self, config: dict) -> None:
+        self._config = config
 
     def convert(self, public_transport_situation: PublicTransportSituation) -> dict:
         entity_id = sirixml_get_value(public_transport_situation, 'SituationNumber')
 
-        alert_url = None
+        alert_url = self._create_alert_url(alertId=entity_id)
         alert_cause = self._convert_alert_cause(sirixml_get_value(public_transport_situation, 'AlertCause'))
         alert_effect = self._convert_alert_effect(sirixml_get_elements(public_transport_situation, 'Consequences'))
         alert_header_text = self._create_translated_string(
@@ -50,6 +50,20 @@ class EmsAdapter(BaseAdapter):
 
     def _convert_alert_effect(self, consequences) -> str:
         return 'UNKNOWN_EFFECT'
+
+    def _create_alert_url(self, **variables) -> dict:
+         
+        urls = []
+        for lang, template in self._config['app']['adapter']['url'].items():
+            
+            url = template
+            for key, value in variables.items():
+                tkey = f"[{key}]"
+                url = url.replace(tkey, value)
+
+            urls.append(self._create_translated_string(lang, url))
+        
+        return urls
 
     def _create_translated_string(self, lang: str, text: str) -> dict:
         translated_string = dict()

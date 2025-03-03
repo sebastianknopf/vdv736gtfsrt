@@ -36,6 +36,9 @@ class GtfsRealtimeServer:
 
         if 'type' not in self._config['app']['adapter']:
             raise ValueError("required config key 'app.adapter.type' missing")
+        
+        if 'url' not in self._config['app']['adapter']:
+            raise ValueError("required config key 'app.adapter.url' missing")
 
         if 'participants' not in self._config['app']:
             raise ValueError("required config key 'app.participants' missing")
@@ -49,7 +52,7 @@ class GtfsRealtimeServer:
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
             from .adapter.nvbw.ems import EmsAdapter
-            self._adapter = EmsAdapter()
+            self._adapter = EmsAdapter(self._config)
         else:
             raise ValueError(f"unknown adapter type {self._config['app']['adapter']['type']}")
 
@@ -164,6 +167,7 @@ class GtfsRealtimeServer:
             'app': {
                 #'adapter': {
                 #    'type': 'nvbw.ems'
+                #    'url': 'https://yourdomain.dev/[alertId]
                 #},
                 'endpoint': '/gtfsrt-service-alerts.pbf',
                 #'participants': 'participants.yaml',
