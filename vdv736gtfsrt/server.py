@@ -118,10 +118,9 @@ class GtfsRealtimeServer:
                 return Response(content=cached_response, media_type=mime_type)
             
         # render objects out of current messages
-        situations = self._subscriber.get_situations()
-        print(situations)
-
         objects = []
+        for _, situation in self._subscriber.get_situations().items():
+            objects.append(self._adapter.convert(situation))
 
         # send response
         feed_message = self._create_feed_message(objects)
