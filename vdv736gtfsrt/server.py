@@ -122,8 +122,15 @@ class GtfsRealtimeServer:
             
         # render objects out of current messages
         objects = []
-        for _, situation in self._subscriber.get_situations().items():
-            objects.append(self._adapter.convert(situation))
+        for situation_id, situation in self._subscriber.get_situations().items():
+            try:
+                alert = self._adapter.convert(situation)
+
+                if alert is not None:
+                    objects.append(alert)
+            except Exception as ex:
+                self._logger.exception(ex)
+                self._logger.error(f"Could not convert situation {situation_id} due to an exception")
 
         # send response
         feed_message = self._create_feed_message(objects)
