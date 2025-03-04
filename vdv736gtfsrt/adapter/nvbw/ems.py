@@ -1,5 +1,3 @@
-from datetime import datetime
-from typing import List
 from vdv736.sirixml import get_elements as sirixml_get_elements
 from vdv736.sirixml import get_value as sirixml_get_value
 from vdv736.sirixml import get_attribute as sirixml_get_attribute
@@ -8,6 +6,7 @@ from vdv736.model import PublicTransportSituation
 
 from ..adapter import BaseAdapter
 from ..vdvdef import causes, conditions, effect_priorities
+from ..gtfsrt import create_url, create_translated_string, iso2unix
 
 class EmsAdapter(BaseAdapter):
 
@@ -17,14 +16,14 @@ class EmsAdapter(BaseAdapter):
     def convert(self, public_transport_situation: PublicTransportSituation) -> dict:
         entity_id = sirixml_get_value(public_transport_situation, 'SituationNumber')
 
-        alert_url = self._create_alert_url(alertId=entity_id)
+        alert_url = create_url(self._config['app']['adapter']['url'], alertId=entity_id)
         alert_cause = self._convert_alert_cause(sirixml_get_value(public_transport_situation, 'AlertCause'))
         alert_effect = self._convert_alert_effect(sirixml_get_elements(public_transport_situation, 'Consequences'))
-        alert_header_text = self._create_translated_string(
+        alert_header_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Summary.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
             [sirixml_get_value(public_transport_situation, 'Summary')]
         )
-        alert_description_text = self._create_translated_string(
+        alert_description_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Detail.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
             [sirixml_get_value(public_transport_situation, 'Detail')]
         )
@@ -36,10 +35,10 @@ class EmsAdapter(BaseAdapter):
 
             active_period = dict()
             if start_time is not None:
-                active_period['start'] = self._iso2unix(start_time)
+                active_period['start'] = iso2unix(start_time)
             
             if end_time is not None and not end_time.startswith('2500'):
-                active_period['end'] = self._iso2unix(end_time)
+                active_period['end'] = iso2unix(end_time)
 
             if len(active_period.keys()) > 0:
                 alert_active_periods.append(active_period)
@@ -142,37 +141,3 @@ class EmsAdapter(BaseAdapter):
             return sorted(effects, key=lambda x: prios.index(x))[0]
         else:
             return 'UNKNOWN_EFFECT'
-
-    def _create_alert_url(self, **variables) -> dict:
-         
-        languages = list()
-        texts = list()
-        for lang, template in self._config['app']['adapter']['url'].items():
-            url = template
-            for key, value in variables.items():
-                tkey = f"[{key}]"
-                url = url.replace(tkey, value)
-
-            languages.append(lang)
-            texts.append(url)
-        
-        return self._create_translated_string(languages, texts)
-
-    def _create_translated_string(self, languages: List[str], texts: List[str]) -> dict:
-        translated_string = dict()
-        translated_string['translation'] = list()
-
-        if len(languages) != len(texts):
-            raise ValueError('the number of languages must be the same like the number of texts')
-        
-        for n in range(0, len(languages)):
-            translated_string['translation'].append({
-                'language': languages[n].lower(),
-                'text': texts[n]
-            })
-
-        return translated_string
-    
-    def _iso2unix(self, iso_timestamp: str) -> int:
-        dt = datetime.strptime(iso_timestamp, '%Y-%m-%dT%H:%M:%SZ')
-        return int((dt - datetime(1970, 1, 1)).total_seconds())
