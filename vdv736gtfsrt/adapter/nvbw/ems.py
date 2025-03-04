@@ -3,6 +3,7 @@ from typing import List
 from vdv736.sirixml import get_elements as sirixml_get_elements
 from vdv736.sirixml import get_value as sirixml_get_value
 from vdv736.sirixml import get_attribute as sirixml_get_attribute
+from vdv736.sirixml import exists as sirixml_exists
 from vdv736.model import PublicTransportSituation
 
 from ..adapter import BaseAdapter
@@ -40,8 +41,57 @@ class EmsAdapter(BaseAdapter):
             if end_time is not None and not end_time.startswith('2500'):
                 active_period['end'] = self._iso2unix(end_time)
 
-            if 'start' in active_period or 'end' in active_period:
-                alert_active_periods.append(active_period)         
+            if len(active_period.keys()) > 0:
+                alert_active_periods.append(active_period)
+
+        alert_informed_entities = list()
+        for publishing_action in sirixml_get_elements(public_transport_situation, 'PublishingActions.PublishingAction'):
+            if publishing_action.PublishAtScope.ScopeType == 'stopPlace':
+                
+                for stop_place in sirixml_get_elements(publishing_action, 'PublishAtScope.Affects.StopPlaces.AffectedStopPlace'):
+                    entity_selector = {
+                        'stop_id': sirixml_get_value(stop_place, 'StopPlaceRef')
+                    }
+
+                    if sirixml_exists(stop_place, 'Lines.AffectedLine'):
+                        for line in stop_place.Lines.AffectedLine:
+                            entity_selector['route_id'] = sirixml_get_value(line, 'LineRef')
+
+                    alert_informed_entities.append(entity_selector)
+
+            elif publishing_action.PublishAtScope.ScopeType == 'stopPoint':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'stopPlaceComponent':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'line':
+                
+                for network in sirixml_get_elements(publishing_action, 'PublishAtScope.Affects.Networks.AffectedNetwork'):
+                    if sirixml_exists(network, 'AffectedLine'):
+                        for line in sirixml_get_elements(network, 'AffectedLine'):
+                            entity_selector = {
+                                'route_id': sirixml_get_value(line, 'LineRef')
+                            }
+
+                            alert_informed_entities.append(entity_selector)
+
+            elif publishing_action.PublishAtScope.ScopeType == 'route':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'operator':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'place':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'network':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'vehicleJourney':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'datedVehicleJourney':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'connectionLink':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'interchange':
+                pass
+            elif publishing_action.PublishAtScope.ScopeType == 'allPT' or publishing_action.PublishAtScope.ScopeType == 'general':
+                pass
 
         # create result object
         result = {
@@ -52,7 +102,8 @@ class EmsAdapter(BaseAdapter):
                 'effect': alert_effect,
                 'header_text': alert_header_text,
                 'desciption_text': alert_description_text,
-                'active_period': alert_active_periods
+                'active_period': alert_active_periods,
+                'informed_entity': alert_informed_entities
             }
         }
 
