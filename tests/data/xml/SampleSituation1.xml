@@ -1,0 +1,116 @@
+<PtSituationElement>
+    <CreationTime>2024-06-10T09:22:17Z</CreationTime>
+    <CountryRef>de</CountryRef>
+    <ParticipantRef>TEST-PUBLISHER</ParticipantRef>
+    <SituationNumber>ef478576-d1a8-527e-8820-5164ca986128</SituationNumber>
+    <Version>1</Version>
+    <Source>
+        <CountryRef>de</CountryRef>
+        <SourceType>directReport</SourceType>
+        <Name>EMS</Name>
+        <ExternalCode>EMS</ExternalCode>
+    </Source>
+    <VersionedAtTime>2024-06-10T09:22:47Z</VersionedAtTime>
+    <Progress>published</Progress>
+    <ValidityPeriod>
+        <StartTime>2024-06-10T02:00:00Z</StartTime>
+        <EndTime>2500-12-31T00:00:00Z</EndTime>
+    </ValidityPeriod>
+    <PublicationWindow>
+        <StartTime>2024-06-10T02:00:00Z</StartTime>
+        <EndTime>2500-12-31T00:00:00Z</EndTime>
+    </PublicationWindow>
+    <AlertCause>constructionWork</AlertCause>
+    <Severity>normal</Severity>
+    <Priority>2</Priority>
+    <Audience>public</Audience>
+    <ScopeType>stopPlace</ScopeType>
+    <Planned>true</Planned>
+    <Language>DE</Language>
+    <Summary xml:lang="DE">Vogesenstrasse verschoben</Summary>
+    <Description xml:lang="DE">Vogesenstrasse verschoben
+Linie 62
+Grund: Bauarbeiten</Description>
+    <Detail xml:lang="DE">Die Haltestelle Vogesenstrasse ist verschoben.
+Betroffen ist die Linie 62.
+Der Grund dafür sind Bauarbeiten.
+Die Dauer der Einschränkung ist unbestimmt.
+&lt;br&gt;
+Die Ersatzhaltestelle befindet sich bei der Ersatzhaltestelle der Tramlinie 11.
+Bitte beachten Sie die Informationstafeln auf der Haltestelle</Detail>
+    <Affects>
+        <StopPlaces>
+            <AffectedStopPlace>
+                <StopPlaceRef>8588794</StopPlaceRef>
+                <PlaceName>Vogesenstrasse</PlaceName>
+            </AffectedStopPlace>
+        </StopPlaces>
+    </Affects>
+    <Consequences>
+        <Consequence>
+            <Condition>unknown</Condition>
+            <Severity>normal</Severity>
+            <Affects>
+                <StopPlaces>
+                    <AffectedStopPlace>
+                        <StopPlaceRef>8588794</StopPlaceRef>
+                        <Lines>
+                            <AffectedLine>
+                                <AffectedOperator>
+                                    <OperatorRef>37</OperatorRef>
+                                </AffectedOperator>
+                                <LineRef>85:37:62</LineRef>
+                                <PublishedLineName>62</PublishedLineName>
+                            </AffectedLine>
+                        </Lines>
+                    </AffectedStopPlace>
+                </StopPlaces>
+            </Affects>
+        </Consequence>
+    </Consequences>
+    <PublishingActions>
+        <PublishingAction>
+            <PublishAtScope>
+                <ScopeType>stopPlace</ScopeType>
+                <Affects>
+                    <StopPlaces>
+                        <AffectedStopPlace>
+                            <StopPlaceRef>8588794</StopPlaceRef>
+                            <Lines>
+                                <AffectedLine>
+                                    <AffectedOperator>
+                                        <OperatorRef>37</OperatorRef>
+                                    </AffectedOperator>
+                                    <LineRef>85:37:62</LineRef>
+                                    <PublishedLineName>62</PublishedLineName>
+                                </AffectedLine>
+                            </Lines>
+                        </AffectedStopPlace>
+                    </StopPlaces>
+                </Affects>
+            </PublishAtScope>
+            <PassengerInformationAction>
+                <ActionRef>ems-7456-0</ActionRef>
+                <RecordedAtTime>2024-06-10T09:22:47Z</RecordedAtTime>
+                <OwnerRef>Basler Verkehrs-Betriebe (BVB)</OwnerRef>
+                <Perspective>general</Perspective>
+                <Perspective>stopPoint</Perspective>
+                <Perspective>vehicleJourney</Perspective>
+                <TextualContent>
+                    <TextualContentSize>M</TextualContentSize>
+                    <SummaryContent>
+                        <SummaryText xml:lang="DE">Vogesenstrasse verschoben</SummaryText>
+                    </SummaryContent>
+                    <ReasonContent>
+                        <ReasonText xml:lang="DE">Bauarbeiten</ReasonText>
+                    </ReasonContent>
+                    <DescriptionContent>
+                        <DescriptionText xml:lang="DE">Vogesenstrasse verschoben
+    Linie 62
+    Grund: Bauarbeiten</DescriptionText>
+                    </DescriptionContent>
+                </TextualContent>
+            </PassengerInformationAction>
+        </PublishingAction>
+    </PublishingActions>
+</PtSituationElement>

@@ -1,0 +1,172 @@
+<PtSituationElement>
+    <CreationTime>2024-10-03T11:16:27Z</CreationTime>
+    <CountryRef>de</CountryRef>
+    <ParticipantRef>NVBW-EMS-PROD-TO-DDIP-Server</ParticipantRef>
+    <SituationNumber>18acba15-9669-58af-91f1-7a0a3a9c3b98</SituationNumber>
+    <Version>4</Version>
+    <Source>
+        <CountryRef>de</CountryRef>
+        <SourceType>directReport</SourceType>
+        <Name>EMS</Name>
+        <ExternalCode>EMS</ExternalCode>
+    </Source>
+    <VersionedAtTime>2024-10-18T04:51:38Z</VersionedAtTime>
+    <Progress>published</Progress>
+    <ValidityPeriod>
+        <StartTime>2024-10-14T03:00:00Z</StartTime>
+        <EndTime>2024-10-28T01:00:00Z</EndTime>
+    </ValidityPeriod>
+    <PublicationWindow>
+        <StartTime>2024-10-10T08:00:00Z</StartTime>
+        <EndTime>2024-10-28T01:00:00Z</EndTime>
+    </PublicationWindow>
+    <AlertCause>constructionWork</AlertCause>
+    <Severity>normal</Severity>
+    <Priority>2</Priority>
+    <Audience>public</Audience>
+    <ScopeType>line</ScopeType>
+    <Planned>true</Planned>
+    <Language>DE</Language>
+    <Summary xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz</Summary>
+    <Description xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz
+Linien 15, 16
+Grund: Bauarbeiten</Description>
+    <Detail xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz
+Betroffen sind die Linien 15, 16.
+Der Grund dafür sind Bauarbeiten.
+Die Einschränkung dauert bis ca. 28.10.2024, 02:00 Uhr.
+&lt;br&gt;
+Die Linie 16 fällt zwischen Bruderholz und Heiliggeistkirche aus. Fahrgäste mit Ziel Bruderholz steigen bitte am Tellplatz, an der Haltekante B, auf die Linie 15 um.</Detail>
+    <Affects>
+        <StopPlaces>
+            <AffectedStopPlace>
+                <StopPlaceRef>8589299</StopPlaceRef>
+                <PlaceName>Bruderholz</PlaceName>
+            </AffectedStopPlace>
+        </StopPlaces>
+    </Affects>
+    <Consequences>
+        <Consequence>
+            <Condition>delayed</Condition>
+            <Severity>normal</Severity>
+            <Affects>
+                <Networks>
+                    <AffectedNetwork>
+                        <AffectedLine>
+                            <AffectedOperator>
+                                <OperatorRef>1</OperatorRef>
+                            </AffectedOperator>
+                            <LineRef>85:823:16</LineRef>
+                            <PublishedLineName>16</PublishedLineName>
+                        </AffectedLine>
+                    </AffectedNetwork>
+                </Networks>
+            </Affects>
+        </Consequence>
+        <Consequence>
+            <Condition>delayed</Condition>
+            <Severity>normal</Severity>
+            <Affects>
+                <Networks>
+                    <AffectedNetwork>
+                        <AffectedLine>
+                            <AffectedOperator>
+                                <OperatorRef>1</OperatorRef>
+                            </AffectedOperator>
+                            <LineRef>85:823:15</LineRef>
+                            <PublishedLineName>15</PublishedLineName>
+                        </AffectedLine>
+                    </AffectedNetwork>
+                </Networks>
+            </Affects>
+        </Consequence>
+    </Consequences>
+    <PublishingActions>
+        <PublishingAction>
+            <PublishAtScope>
+                <ScopeType>line</ScopeType>
+                <Affects>
+                    <Networks>
+                        <AffectedNetwork>
+                            <AffectedLine>
+                                <AffectedOperator>
+                                    <OperatorRef>1</OperatorRef>
+                                </AffectedOperator>
+                                <LineRef>85:823:16</LineRef>
+                                <PublishedLineName>16</PublishedLineName>
+                            </AffectedLine>
+                        </AffectedNetwork>
+                    </Networks>
+                </Affects>
+            </PublishAtScope>
+            <PassengerInformationAction>
+                <ActionRef>ems-7788-0</ActionRef>
+                <RecordedAtTime>2024-10-18T04:51:38Z</RecordedAtTime>
+                <OwnerRef>Basler Verkehrs-Betriebe (BVB)</OwnerRef>
+                <Perspective>general</Perspective>
+                <Perspective>stopPoint</Perspective>
+                <Perspective>vehicleJourney</Perspective>
+                <TextualContent>
+                    <TextualContentSize>M</TextualContentSize>
+                    <SummaryContent>
+                        <SummaryText xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz</SummaryText>
+                    </SummaryContent>
+                    <ReasonContent>
+                        <ReasonText xml:lang="DE">Bauarbeiten</ReasonText>
+                    </ReasonContent>
+                    <DescriptionContent>
+                        <DescriptionText xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz
+    Linien 15, 16
+    Grund: Bauarbeiten</DescriptionText>
+                    </DescriptionContent>
+                    <ConsequenceContent>
+                        <ConsequenceText xml:lang="DE">Es kommt zu Umleitungen.</ConsequenceText>
+                    </ConsequenceContent>
+                </TextualContent>
+            </PassengerInformationAction>
+        </PublishingAction>
+        <PublishingAction>
+            <PublishAtScope>
+                <ScopeType>line</ScopeType>
+                <Affects>
+                    <Networks>
+                        <AffectedNetwork>
+                            <AffectedLine>
+                                <AffectedOperator>
+                                    <OperatorRef>1</OperatorRef>
+                                </AffectedOperator>
+                                <LineRef>85:823:15</LineRef>
+                                <PublishedLineName>15</PublishedLineName>
+                            </AffectedLine>
+                        </AffectedNetwork>
+                    </Networks>
+                </Affects>
+            </PublishAtScope>
+            <PassengerInformationAction>
+                <ActionRef>ems-7788-1</ActionRef>
+                <RecordedAtTime>2024-10-18T04:51:38Z</RecordedAtTime>
+                <OwnerRef>Basler Verkehrs-Betriebe (BVB)</OwnerRef>
+                <Perspective>general</Perspective>
+                <Perspective>stopPoint</Perspective>
+                <Perspective>vehicleJourney</Perspective>
+                <TextualContent>
+                    <TextualContentSize>M</TextualContentSize>
+                    <SummaryContent>
+                        <SummaryText xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz</SummaryText>
+                    </SummaryContent>
+                    <ReasonContent>
+                        <ReasonText xml:lang="DE">Bauarbeiten</ReasonText>
+                    </ReasonContent>
+                    <DescriptionContent>
+                        <DescriptionText xml:lang="DE">Eingeschränkter Betrieb zwischen Heiliggeistkirche und Tellplatz im Bereich Bruderholz
+    Linien 15, 16
+    Grund: Bauarbeiten</DescriptionText>
+                    </DescriptionContent>
+                    <ConsequenceContent>
+                        <ConsequenceText xml:lang="DE">Es kommt zu Umleitungen.</ConsequenceText>
+                    </ConsequenceContent>
+                </TextualContent>
+            </PassengerInformationAction>
+        </PublishingAction>
+    </PublishingActions>
+</PtSituationElement>
