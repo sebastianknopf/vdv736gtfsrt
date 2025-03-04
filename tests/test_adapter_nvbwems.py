@@ -40,6 +40,12 @@ class Adapter_NvbwEms_Test(unittest.TestCase):
             self.assertEqual(1717984800, result['alert']['active_period'][0]['start'])
             self.assertNotIn('end', result['alert']['active_period'][0])
 
+            self.assertEqual(1, len(result['alert']['informed_entity']))
+            self.assertIn('stop_id', result['alert']['informed_entity'][0])
+            self.assertEqual('8588794', result['alert']['informed_entity'][0]['stop_id'])
+            self.assertIn('route_id', result['alert']['informed_entity'][0])
+            self.assertEqual('85:37:62', result['alert']['informed_entity'][0]['route_id'])
+
     def test_SampleSituation2(self):
 
         xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleSituation2.xml')
@@ -60,4 +66,10 @@ class Adapter_NvbwEms_Test(unittest.TestCase):
 
             self.assertEqual(1728547200, result['alert']['active_period'][0]['start'])
             self.assertEqual(1730077200, result['alert']['active_period'][0]['end'])
+
+            self.assertEqual(2, len(result['alert']['informed_entity']))
+            self.assertIn('route_id', result['alert']['informed_entity'][0])
+            self.assertEqual('85:823:16', result['alert']['informed_entity'][0]['route_id'])
+            self.assertIn('route_id', result['alert']['informed_entity'][1])
+            self.assertEqual('85:823:15', result['alert']['informed_entity'][1]['route_id'])
             
