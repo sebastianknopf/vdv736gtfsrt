@@ -108,7 +108,7 @@ class GtfsRealtimeServer:
     async def _endpoint(self, request: Request) -> Response:
         
         # check whether there're cached data
-        format = request.query_params['f'] if 'f' in request.query_params else 'pbf'
+        format = 'json' if 'debug' in request.query_params else 'pbf'
 
         if self._cache is not None:
             cached_response = self._cache.get(f"{request.url.path}-{format}")
