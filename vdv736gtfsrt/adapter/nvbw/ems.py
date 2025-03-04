@@ -5,6 +5,7 @@ from vdv736.sirixml import get_attribute as sirixml_get_attribute
 from vdv736.model import PublicTransportSituation
 
 from ..adapter import BaseAdapter
+from ..vdvdef import causes, conditions, effect_priorities
 
 class EmsAdapter(BaseAdapter):
 
@@ -46,143 +47,7 @@ class EmsAdapter(BaseAdapter):
         return result
     
     def _convert_alert_cause(self, cause: str) -> str:
-        cause_map = {
-            'unknown': 'UNKNOWN_CAUSE',
-            'emergencyServicesCall': 'OTHER_CAUSE',
-            'policeActivity': 'POLICE_ACTIVITY',
-            'policeOrder': 'POLICE_ACTIVITY',
-            'fire': 'OTHER_CAUSE',
-            'cableFire': 'OTHER_CAUSE',
-            'smokeDetectedOnVehicle': 'OTHER_CAUSE',
-            'fireAtTheStation': 'OTHER_CAUSE',
-            'fireRun': 'OTHER_CAUSE',
-            'fireBrigadeOrder': 'OTHER_CAUSE',
-            'explosion': 'OTHER_CAUSE',
-            'explosionHazard': 'OTHER_CAUSE',
-            'bombDisposal': 'OTHER_CAUSE',
-            'emergencyMedicalServices': 'MEDICAL_EMERGENCY',
-            'emergencyBrake': 'OTHER_CAUSE',
-            'vandalism': 'OTHER_CAUSE',
-            'cableTheft': 'OTHER_CAUSE',
-            'signalPassedAtDanger': 'OTHER_CAUSE',
-            'stationOverrun': 'OTHER_CAUSE',
-            'passengersBlockingDoors': 'OTHER_CAUSE',
-            'defectiveSecuritySystem': 'OTHER_CAUSE',
-            'overcrowded': 'OTHER_CAUSE',
-            'borderControl': 'POLICE_ACTIVITY',
-            'unattendedBag': 'POLICE_ACTIVITY',
-            'telephonedThreat': 'POLICE_ACTIVITY',
-            'suspectVehicle': 'POLICE_ACTIVITY',
-            'evacuation': 'POLICE_ACTIVITY',
-            'terroristIncident': 'POLICE_ACTIVITY',
-            'publicDisturbance': 'OTHER_CAUSE',
-            'technicalProblem': 'TECHNICAL_PROBLEM',
-            'vehicleFailure': 'TECHNICAL_PROBLEM',
-            'serviceDisruption': 'OTHER_CAUSE',
-            'doorFailure': 'TECHNICAL_PROBLEM',
-            'lightingFailure': 'TECHNICAL_PROBLEM',
-            'pointsProblem': 'TECHNICAL_PROBLEM',
-            'signalProblem': 'TECHNICAL_PROBLEM',
-            'signalFailure': 'TECHNICAL_PROBLEM',
-            'overheadWireFailure': 'TECHNICAL_PROBLEM',
-            'levelCrossingFailure': 'TECHNICAL_PROBLEM',
-            'trafficManagementSystemFailure': 'TECHNICAL_PROBLEM',
-            'engineFailure': 'TECHNICAL_PROBLEM',
-            'repairWork': 'CONSTRUCTION',
-            'constructionWork': 'CONSTRUCTION',
-            'maintenanceWork': 'MAINTENANCE',
-            'powerProblem': 'OTHER_CAUSE',
-            'trackCircuitProblem': 'OTHER_CAUSE',
-            'swingBridgeFailure': 'OTHER_CAUSE',
-            'escalatorFailure': 'OTHER_CAUSE',
-            'liftFailure': 'TECHNICAL_PROBLEM',
-            'gangwayProblem': 'OTHER_CAUSE',
-            'defectiveVehicle': 'TECHNICAL_PROBLEM',
-            'brokenRail': 'OTHER_CAUSE',
-            'poorRailConditions': 'OTHER_CAUSE',
-            'deicingWork': 'OTHER_CAUSE',
-            'wheelProblem': 'TECHNICAL_PROBLEM',
-            'routeBlockage': 'OTHER_CAUSE',
-            'congestion': 'OTHER_CAUSE',
-            'heavyTraffic': 'OTHER_CAUSE',
-            'routeDiversion': 'CONSTRUCTION',
-            'unscheduledConstructionWork': 'CONSTRUCTION',
-            'levelCrossingBlocked': 'OTHER_CAUSE',
-            'sewerageMaintenance': 'MAINTENANCE',
-            'roadClosed': 'OTHER_CAUSE',
-            'roadwayDamage': 'OTHER_CAUSE',
-            'bridgeDamage': 'OTHER_CAUSE',
-            'personOnTheLine': 'OTHER_CAUSE',
-            'objectOnTheLine': 'OTHER_CAUSE',
-            'vehicleOnTheLine': 'OTHER_CAUSE',
-            'animalOnTheLine': 'OTHER_CAUSE',
-            'fallenTreeOnTheLine': 'WHEATHER',
-            'vegetation': 'OTHER_CAUSE',
-            'speedRestrictions': 'OTHER_CAUSE',
-            'precedingVehicle': 'OTHER_CAUSE',
-            'accident': 'ACCIDENT',
-            'nearMiss': 'ACCIDENT',
-            'personHitByVehicle': 'ACCIDENT',
-            'vehicleStruckObject': 'ACCIDENT',
-            'vehicleStruckAnimal': 'ACCIDENT',
-            'derailment': 'ACCIDENT',
-            'collision': 'ACCIDENT',
-            'levelCrossingAccident': 'ACCIDENT',
-            'poorWeather': 'WEATHER',
-            'fog': 'WEATHER',
-            'heavySnowfall': 'WEATHER',
-            'heavyRain': 'WEATHER',
-            'strongWinds': 'WEATHER',
-            'ice': 'WEATHER',
-            'hail': 'WEATHER',
-            'highTemperatures': 'WEATHER',
-            'flooding': 'WEATHER',
-            'lowWaterLevel': 'WEATHER',
-            'riskOfFlooding': 'WEATHER',
-            'highWaterLevel': 'WEATHER',
-            'fallenLeaves': 'WEATHER',
-            'fallenTree': 'WEATHER',
-            'landslide': 'WEATHER',
-            'riskOfLandslide': 'WEATHER',
-            'driftingSnow': 'WEATHER',
-            'blizzardConditions': 'WEATHER',
-            'stormDamage': 'WEATHER',
-            'lightningStrike': 'WEATHER',
-            'roughSea': 'WEATHER',
-            'highTide': 'WEATHER',
-            'lowTide': 'WEATHER',
-            'iceDrift': 'WEATHER',
-            'avalanches': 'WEATHER',
-            'riskOfAvalanches': 'WEATHER',
-            'flashFloods': 'WEATHER',
-            'mudslide': 'WEATHER',
-            'rockfalls': 'WEATHER',
-            'subsidence': 'WEATHER',
-            'earthquakeDamage': 'WEATHER',
-            'grassFire': 'WEATHER',
-            'wildlandFire': 'WEATHER',
-            'iceOnRailway': 'WEATHER',
-            'iceOnCarriages': 'WEATHER',
-            'specialEvent': 'OTHER_CAUSE',
-            'procession': 'DEMONSTRATION',
-            'demonstration': 'DEMONSTRATION',
-            'industrialAction': 'STRIKE',
-            'staffSickness': 'OTHER_CAUSE',
-            'staffAbsence': 'OTHER_CAUSE',
-            'operatorCeasedTrading': 'OTHER_CAUSE',
-            'previousDisturbances': 'OTHER_CAUSE',
-            'vehicleBlockingTrack': 'OTHER_CAUSE',
-            'foreignDisturbances': 'OTHER_CAUSE',
-            'waitingForTransferPassengers': 'OTHER_CAUSE',
-            'changeInCarriages': 'OTHER_CAUSE',
-            'trainCoupling': 'OTHER_CAUSE',
-            'boardingDelay': 'OTHER_CAUSE',
-            'awaitingOncomingVehicle': 'OTHER_CAUSE',
-            'overtaking': 'OTHER_CAUSE',
-            'provisionDelay': 'OTHER_CAUSE',
-            'miscellaneous': 'OTHER_CAUSE',
-            'undefinedAlertCause': 'OTHER_CAUSE'
-        }
+        cause_map = causes
         
         if cause in cause_map:
             return cause_map[cause]
@@ -190,37 +55,8 @@ class EmsAdapter(BaseAdapter):
             return 'UNKNOWN_CAUSE'
 
     def _convert_alert_effect(self, consequences) -> str:
-        condition_map = {
-            'unknown': 'UNKNOWN_EFFECT',
-            'delay': 'SIGNIFICANT_DELAYS',
-            'delayed': 'SIGNIFICANT_DELAYS', # NVBW specific, not VDV736!
-            'minorDelays': 'SIGNIFICANT_DELAYS',
-            'majorDelays': 'SIGNIFICANT_DELAYS',
-            'operationTimeExtension': 'ADDITIONAL_SERVICE',
-            'onTime': 'NO_EFFECT',
-            'disturbanceRectified': 'NO_EFFECT',
-            'changeOfPlatform': 'DETOUR',
-            'lineCancellation': 'NO_SERVICE',
-            'tripCancellation': 'NO_SERVICE',
-            'boarding': 'NO_EFFECT',
-            'goToGate': 'NO_EFFECT',
-            'stopCancelled': 'NO_SERVICE',
-            'stopMoved': 'STOP_MOVED',
-            'stopOnDemand': 'MODIFIED_SERVICE',
-            'additionalStop': 'ADDITIONAL_SERVICE',
-            'substitutedStop': 'DETOUR',
-            'diverted': 'DETOUR',
-            'disruption': 'DETOUR',
-            'limitedOperation': 'REDUCED_SERVICE',
-            'discontinuedOperation': 'NO_SERVICE',
-            'irregularTraffic': 'MODIFIED_SERVICE',
-            'wagonOrderChanged': 'MODIFIED_SERVICE',
-            'trainShortened': 'REDUCED_SERVICE',
-            'additionalRide': 'ADDITIONAL_SERVICE',
-            'replacementRide': 'MODIFIED_SERVICE',
-            'temporaryStopplace': 'STOP_MOVED',
-            'undefinedStatus': 'UNKNOWN_EFFECT'
-        }
+        condition_map = conditions
+        condition_map['delayed'] = 'SIGNIFICANT_DELAYS'
 
         # run through all consequences and convert conditions to effects
         effects = list()
@@ -231,23 +67,11 @@ class EmsAdapter(BaseAdapter):
                 effects.append('UNKNOWN_EFFECT')
 
         # define order of effect priorities here
-        effect_priorities = [
-            'NO_SERVICE',
-            'DETOUR',
-            'STOP_MOVED',
-            'REDUCED_SERVICE',
-            'MODIFIED_SERVICE',
-            'SIGNIFICANT_DELAYS',
-            'ADDITIONAL_SERVICE',
-            'ACCESSIBILITY_ISSUE',
-            'OTHER_EFFECT',
-            'NO_EFFECT',
-            'UNKNOWN_EFFECT'
-        ]
+        prios = effect_priorities
 
         # prioritize effects, as GTFS-RT spec allows only one effect actually
         if len(effects):
-            return sorted(effects, key=lambda x: effect_priorities.index(x))[0]
+            return sorted(effects, key=lambda x: prios.index(x))[0]
         else:
             return 'UNKNOWN_EFFECT'
 
