@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 from vdv736.sirixml import get_elements as sirixml_get_elements
 from vdv736.sirixml import get_value as sirixml_get_value
@@ -27,6 +28,21 @@ class EmsAdapter(BaseAdapter):
             [sirixml_get_value(public_transport_situation, 'Detail')]
         )
 
+        alert_active_periods = list()
+        for publication_window in public_transport_situation.PublicationWindow:
+            start_time = sirixml_get_value(publication_window, 'StartTime')
+            end_time = sirixml_get_value(publication_window, 'EndTime')
+
+            active_period = dict()
+            if start_time is not None:
+                active_period['start'] = self._iso2unix(start_time)
+            
+            if end_time is not None and not end_time.startswith('2500'):
+                active_period['end'] = self._iso2unix(end_time)
+
+            if 'start' in active_period or 'end' in active_period:
+                alert_active_periods.append(active_period)         
+
         # create result object
         result = {
             'entity_id': entity_id,
@@ -35,7 +51,8 @@ class EmsAdapter(BaseAdapter):
                 'cause': alert_cause,
                 'effect': alert_effect,
                 'header_text': alert_header_text,
-                'desciption_text': alert_description_text
+                'desciption_text': alert_description_text,
+                'active_period': alert_active_periods
             }
         }
 
@@ -104,3 +121,7 @@ class EmsAdapter(BaseAdapter):
             })
 
         return translated_string
+    
+    def _iso2unix(self, iso_timestamp: str) -> int:
+        dt = datetime.strptime(iso_timestamp, '%Y-%m-%dT%H:%M:%SZ')
+        return int((dt - datetime(1970, 1, 1)).total_seconds())

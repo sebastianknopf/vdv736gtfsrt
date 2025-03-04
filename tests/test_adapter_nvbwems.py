@@ -37,6 +37,9 @@ class Adapter_NvbwEms_Test(unittest.TestCase):
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
             self.assertEqual('de', result['alert']['desciption_text']['translation'][0]['language'])
 
+            self.assertEqual(1717984800, result['alert']['active_period'][0]['start'])
+            self.assertNotIn('end', result['alert']['active_period'][0])
+
     def test_SampleSituation2(self):
 
         xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleSituation2.xml')
@@ -54,4 +57,7 @@ class Adapter_NvbwEms_Test(unittest.TestCase):
 
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
             self.assertEqual('de', result['alert']['desciption_text']['translation'][0]['language'])
+
+            self.assertEqual(1728547200, result['alert']['active_period'][0]['start'])
+            self.assertEqual(1730077200, result['alert']['active_period'][0]['end'])
             
