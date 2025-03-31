@@ -15,7 +15,7 @@ dependencies = [
     "lxml",
     "memcache",
     "pytz",
-    "pyvdv736",
+    "pyvdv736>=0.0.12",
     "pyyaml",
     "uvicorn",
 ]
