@@ -15,6 +15,7 @@ from google.protobuf.json_format import ParseDict
 from math import floor
 from vdv736.subscriber import Subscriber
 
+from .config import Configuration
 from .repeatedtimer import RepeatedTimer
 
 class GtfsRealtimeServer:
@@ -25,7 +26,7 @@ class GtfsRealtimeServer:
         with open(config_filename, 'r') as config_file:
             self._config = yaml.safe_load(config_file)
 
-        self._config = self._default_config(self._config)
+        self._config = Configuration.default_config(self._config)
 
         # check for required non-default configs
         if 'app' not in self._config:
@@ -48,6 +49,9 @@ class GtfsRealtimeServer:
         
         if 'publisher' not in self._config['app']:
             raise ValueError("required config key 'app.publisher' missing")
+        
+        if 'pattern' not in self._config['app']:
+            raise ValueError("required config key 'app.pattern' missing")
 
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
@@ -165,38 +169,6 @@ class GtfsRealtimeServer:
             },
             'entity': entities
         }
-    
-    def _default_config(self, config):
-        # some of the default config keys are commented in order to force
-        # the user to provide these configurations actively
-        
-        default_config = {
-            'app': {
-                #'adapter': {
-                #    'type': 'nvbw.ems'
-                #    'url': 'https://yourdomain.dev/[alertId]
-                #},
-                'endpoint': '/gtfsrt-service-alerts.pbf',
-                #'participants': 'participants.yaml',
-                #'subscriber': 'PY_TEST_SUBSCRIBER',
-                #'publisher': 'PY_TEST_PUBLISHER',
-                'status_request_interval': 300,
-                'timezone': 'Europe/Berlin',
-                'caching_enabled': False
-            },
-            'caching': {
-                'caching_server_endpoint': '[YourCachingServerEndpoint]',
-                'caching_server_ttl_seconds': 120
-            }
-        }
-
-        return self._merge_config(default_config, config)
-
-    def _merge_config(self, defaults, actual):
-        if isinstance(defaults, dict) and isinstance(actual, dict):
-            return {k: self._merge_config(defaults.get(k, {}), actual.get(k, {})) for k in set(defaults) | set(actual)}
-        
-        return actual if actual else defaults
 
     def create(self) -> FastAPI:
         self._fastapi.include_router(self._api_router)
