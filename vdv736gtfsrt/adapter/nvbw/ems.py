@@ -44,53 +44,18 @@ class EmsAdapter(BaseAdapter):
                 alert_active_periods.append(active_period)
 
         alert_informed_entities = list()
-        for publishing_action in sirixml_get_elements(public_transport_situation, 'PublishingActions.PublishingAction'):
-            if publishing_action.PublishAtScope.ScopeType == 'stopPlace':
-                
-                for stop_place in sirixml_get_elements(publishing_action, 'PublishAtScope.Affects.StopPlaces.AffectedStopPlace'):
-                    entity_selector = {
-                        'stop_id': sirixml_get_value(stop_place, 'StopPlaceRef')
-                    }
-
-                    if sirixml_exists(stop_place, 'Lines.AffectedLine'):
-                        for line in stop_place.Lines.AffectedLine:
-                            entity_selector['route_id'] = sirixml_get_value(line, 'LineRef')
-
-                    alert_informed_entities.append(entity_selector)
-
-            elif publishing_action.PublishAtScope.ScopeType == 'stopPoint':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'stopPlaceComponent':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'line':
-                
-                for network in sirixml_get_elements(publishing_action, 'PublishAtScope.Affects.Networks.AffectedNetwork'):
-                    if sirixml_exists(network, 'AffectedLine'):
-                        for line in sirixml_get_elements(network, 'AffectedLine'):
-                            entity_selector = {
-                                'route_id': sirixml_get_value(line, 'LineRef')
-                            }
-
-                            alert_informed_entities.append(entity_selector)
-
-            elif publishing_action.PublishAtScope.ScopeType == 'route':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'operator':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'place':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'network':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'vehicleJourney':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'datedVehicleJourney':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'connectionLink':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'interchange':
-                pass
-            elif publishing_action.PublishAtScope.ScopeType == 'allPT' or publishing_action.PublishAtScope.ScopeType == 'general':
-                pass
+        for consequence in sirixml_get_elements(public_transport_situation, 'Consequences.Consequence'):
+            if sirixml_exists(consequence, 'Affects.Networks'):
+                for network in sirixml_get_elements(consequence, 'Affects.Networks.AffectedNetwork'):
+                    for line in sirixml_get_elements(network, 'AffectedLine'):
+                        alert_informed_entities.append({
+                            'route_id': sirixml_get_value(line, 'LineRef', None)
+                        })
+            elif sirixml_exists(consequence, 'Affects.StopPlaces'):
+                for stop_place in sirixml_get_elements(consequence, 'Affects.StopPlaces.AffectedStopPlace'):
+                    alert_informed_entities.append({
+                        'stop_id': sirixml_get_value(stop_place, 'StopPlaceRef', None)
+                    })
 
         # create result object
         result = {
