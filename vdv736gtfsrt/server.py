@@ -15,6 +15,7 @@ from google.protobuf.json_format import ParseDict
 from math import floor
 from vdv736.subscriber import Subscriber
 
+from .config import Configuration
 from .repeatedtimer import RepeatedTimer
 
 class GtfsRealtimeServer:
@@ -25,7 +26,7 @@ class GtfsRealtimeServer:
         with open(config_filename, 'r') as config_file:
             self._config = yaml.safe_load(config_file)
 
-        self._config = self._default_config(self._config)
+        self._config = Configuration.default_config(self._config)
 
         # check for required non-default configs
         if 'app' not in self._config:
@@ -48,6 +49,9 @@ class GtfsRealtimeServer:
         
         if 'publisher' not in self._config['app']:
             raise ValueError("required config key 'app.publisher' missing")
+        
+        if 'pattern' not in self._config['app']:
+            raise ValueError("required config key 'app.pattern' missing")
 
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
@@ -81,29 +85,54 @@ class GtfsRealtimeServer:
         # class container for subscriber
         self._subscriber = None
         self._subscriber_status_timer = None
+        self._subscriber_data_update_timer = None
 
     @asynccontextmanager
     async def _lifespan(self, app):
-        with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
-            self._subscriber = subscriber
+        if self._config['app']['pattern'] == 'publish/subscribe':
+            
+            # start subscriber using publish/subscribe mode
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
+                self._subscriber = subscriber
 
-            # subscribe at the defined publisher
-            self._subscriber.subscribe(self._config['app']['publisher'])
+                # subscribe at the defined publisher
+                self._subscriber.subscribe(self._config['app']['publisher'])
 
-            # start internal repeated timer for subscriber's status requests
-            self._subscriber_status_timer = RepeatedTimer(self._config['app']['status_request_interval'], self._subscriber_status_request)
-            self._subscriber_status_timer.start()
+                # start internal repeated timer for subscriber's status requests
+                self._subscriber_status_timer = RepeatedTimer(self._config['app']['status_request_interval'], self._subscriber_status_request)
+                self._subscriber_status_timer.start()
 
-            # wait here for GtfsRealtimeServer server's termination
-            yield
+                # wait here for GtfsRealtimeServer server's termination
+                yield
 
-            self._logger.info('Shutting down GtfsRealtimeServer')
+                self._logger.info('Shutting down GtfsRealtimeServer')
 
-            # terminate subscribers status timer
-            self._subscriber_status_timer.stop()
+                # terminate subscribers status timer
+                self._subscriber_status_timer.stop()
 
-            # all subscriptions will terminate while exiting the context of 
-            # the subscriber - no need to do anything else here
+                # all subscriptions will terminate while exiting the context of 
+                # the subscriber - no need to do anything else here
+
+        elif self._config['app']['pattern'] == 'request/response':
+            
+            # start subscriber with direct request mode
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False) as subscriber:
+                self._subscriber = subscriber
+
+                # start internal repeated timer for subscriber's data direct request
+                self._subscriber_data_update_timer = RepeatedTimer(self._config['app']['data_update_interval'], self._subscriber_direct_request)
+                self._subscriber_data_update_timer.start_immediately()
+
+                # wait here for GtfsRealtimeServer server's termination
+                yield
+
+                self._logger.info('Shutting down GtfsRealtimeServer')
+
+                # terminate subscribers status timer
+                self._subscriber_data_update_timer.stop()
+
+        else:
+            raise ValueError(f"Unknown subscriber pattern {self._config['app']['pattern']}!")
 
     async def _endpoint(self, request: Request) -> Response:
         
@@ -152,6 +181,10 @@ class GtfsRealtimeServer:
     def _subscriber_status_request(self):
         if self._subscriber is not None:
             self._subscriber.status()
+
+    def _subscriber_direct_request(self):
+        if self._subscriber is not None:
+            self._subscriber.request(self._config['app']['publisher'])
     
     def _create_feed_message(self, entities):
         timestamp = datetime.now().astimezone(pytz.timezone(self._config['app']['timezone'])).timestamp()
@@ -165,38 +198,6 @@ class GtfsRealtimeServer:
             },
             'entity': entities
         }
-    
-    def _default_config(self, config):
-        # some of the default config keys are commented in order to force
-        # the user to provide these configurations actively
-        
-        default_config = {
-            'app': {
-                #'adapter': {
-                #    'type': 'nvbw.ems'
-                #    'url': 'https://yourdomain.dev/[alertId]
-                #},
-                'endpoint': '/gtfsrt-service-alerts.pbf',
-                #'participants': 'participants.yaml',
-                #'subscriber': 'PY_TEST_SUBSCRIBER',
-                #'publisher': 'PY_TEST_PUBLISHER',
-                'status_request_interval': 300,
-                'timezone': 'Europe/Berlin',
-                'caching_enabled': False
-            },
-            'caching': {
-                'caching_server_endpoint': '[YourCachingServerEndpoint]',
-                'caching_server_ttl_seconds': 120
-            }
-        }
-
-        return self._merge_config(default_config, config)
-
-    def _merge_config(self, defaults, actual):
-        if isinstance(defaults, dict) and isinstance(actual, dict):
-            return {k: self._merge_config(defaults.get(k, {}), actual.get(k, {})) for k in set(defaults) | set(actual)}
-        
-        return actual if actual else defaults
 
     def create(self) -> FastAPI:
         self._fastapi.include_router(self._api_router)
