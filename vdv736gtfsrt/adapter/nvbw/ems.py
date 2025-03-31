@@ -127,11 +127,11 @@ class EmsAdapter(BaseAdapter):
 
         # run through all consequences and convert conditions to effects
         effects = list()
-        for consequence in consequences.Consequence:
+        """for consequence in consequences.Consequence:
             if consequence.Condition in condition_map:
                 effects.append(condition_map[consequence.Condition])
             else:
-                effects.append('UNKNOWN_EFFECT')
+                effects.append('UNKNOWN_EFFECT')"""
 
         # define order of effect priorities here
         prios = effect_priorities
