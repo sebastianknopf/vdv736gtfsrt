@@ -19,13 +19,23 @@ class VdvStandardAdapter(BaseAdapter):
         alert_url = create_url(self._config['app']['adapter']['url'], alertId=entity_id)
         alert_cause = self._convert_alert_cause(sirixml_get_value(public_transport_situation, 'AlertCause'))
         alert_effect = self._convert_alert_effect(sirixml_get_elements(public_transport_situation, 'Consequences'))
+        
+        header_text = sirixml_get_value(public_transport_situation, 'Summary')
+        if header_text is None:
+            raise ValueError(f"Missing summary field for situation {entity_id}")
+        
         alert_header_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Summary.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
-            [sirixml_get_value(public_transport_situation, 'Summary')]
+            [header_text]
         )
+
+        description_text = sirixml_get_value(public_transport_situation, 'Detail')
+        if description_text is None:
+            raise ValueError(f"Missing detail field for situation {entity_id}")
+        
         alert_description_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Detail.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
-            [sirixml_get_value(public_transport_situation, 'Detail')]
+            [description_text]
         )
 
         alert_active_periods = self._convert_active_periods(public_transport_situation)
