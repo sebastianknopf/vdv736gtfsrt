@@ -1,9 +1,18 @@
+import pytz
+
 from .config import Configuration
 from .repeatedtimer import RepeatedTimer
 
+from datetime import datetime
+from google.transit import gtfs_realtime_pb2
+from google.protobuf.message import DecodeError
+from google.protobuf.json_format import ParseDict
+from math import floor
 from paho.mqtt import client
 from paho.mqtt.packettypes import PacketTypes
 from paho.mqtt.properties import Properties
+from vdv736.sirixml import get_elements as sirixml_get_elements
+from vdv736.sirixml import get_value as sirixml_get_value
 from vdv736.subscriber import Subscriber
 from vdv736.delivery import SiriDelivery
 
@@ -37,6 +46,16 @@ class GtfsRealtimePublisher:
         
         if 'pattern' not in self._config['app']:
             raise ValueError("required config key 'app.pattern' missing")
+        
+        # create adapter according to settings
+        if self._config['app']['adapter']['type'] == 'vdv':
+            from .adapter.vdv import VdvStandardAdapter
+            self._adapter = VdvStandardAdapter(self._config)
+        if self._config['app']['adapter']['type'] == 'nvbw.ems':
+            from .adapter.nvbw.ems import EmsAdapter
+            self._adapter = EmsAdapter(self._config)
+        else:
+            raise ValueError(f"unknown adapter type {self._config['app']['adapter']['type']}")
 
         # connecto to MQTT broker as defined in config
         topic = topic.replace('+', '_')
@@ -100,4 +119,40 @@ class GtfsRealtimePublisher:
             self._subscriber.request(self._config['app']['publisher'])
 
     def _subscriber_on_delivery(self, siri_delivery: SiriDelivery) -> None:
-        pass
+        timestamp = datetime.now().astimezone(pytz.timezone(self._config['app']['timezone'])).timestamp()
+        timestamp = floor(timestamp)
+        
+        for situation in sirixml_get_elements(siri_delivery, 'Siri.ServiceDelivery.SituationExchangeDelivery.Situations.PtSituationElement'):
+            alert_id = sirixml_get_value(situation, 'SituationNumber')
+            
+            # generate MQTT topic from placeholders
+            # remove leading / if present, see #6 for reference
+            topic = self._topic
+            topic = topic.replace('[alertId]', alert_id)
+
+            if topic.startswith('/'):
+                topic = topic[1:]
+            
+            # generate feed message containing a single alert
+            feed_message = dict()
+            feed_message['header'] = {
+                'gtfs_realtime_version': '2.0',
+                'incrementality': 'DIFFERENTIAL',
+                'timestamp': timestamp
+            }
+
+            feed_message['entity'] = list()
+            
+            # convert to PBF message and publish
+            feed_message['entity'].append({
+                'id': alert_id,
+                'alert': self._adapter.convert(situation)
+            })
+
+            pbf_object = gtfs_realtime_pb2.FeedMessage()
+            ParseDict(feed_message, pbf_object)
+
+            properties = Properties(PacketTypes.PUBLISH)
+            properties.MessageExpiryInterval = self._expiration
+
+            self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties) 
