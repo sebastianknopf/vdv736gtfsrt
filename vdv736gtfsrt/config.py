@@ -9,10 +9,10 @@ class Configuration:
         
         default_config = {
             'app': {
-                #'adapter': {
-                #    'type': 'nvbw.ems'
+                'adapter': {
+                    'type': 'vdv'
                 #    'url': 'https://yourdomain.dev/[alertId]
-                #},
+                },
                 'endpoint': '/gtfsrt-service-alerts.pbf',
                 #'participants': 'participants.yaml',
                 #'subscriber': 'PY_TEST_SUBSCRIBER',

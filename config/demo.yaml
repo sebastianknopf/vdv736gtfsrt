@@ -1,9 +1,8 @@
 app:
   adapter:
-    type: 'nvbw.ems'
+    type: 'vdv'
     url: 
       de: 'https://yourdomain.dev/alerts/de/[alertId]'
   participants: './config/participants.yaml'
   subscriber: PY_TEST_SUBSCRIBER
   publisher: PY_TEST_PUBLISHER
-  status_request_interval: 30

@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+
 from vdv736.model import PublicTransportSituation
 
 
