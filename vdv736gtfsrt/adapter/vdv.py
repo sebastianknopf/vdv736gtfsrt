@@ -39,7 +39,7 @@ class VdvStandardAdapter(BaseAdapter):
                 'cause': alert_cause,
                 'effect': alert_effect,
                 'header_text': alert_header_text,
-                'desciption_text': alert_description_text,
+                'description_text': alert_description_text,
                 'active_period': alert_active_periods,
                 'informed_entity': alert_informed_entities
             }
