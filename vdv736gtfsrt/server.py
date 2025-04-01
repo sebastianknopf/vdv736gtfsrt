@@ -161,7 +161,6 @@ class GtfsRealtimeServer:
                 if alert is not None:
                     objects.append(alert)
             except Exception as ex:
-                self._logger.exception(ex)
                 self._logger.error(f"Could not convert situation {situation_id} due to an exception")
 
         # send response
