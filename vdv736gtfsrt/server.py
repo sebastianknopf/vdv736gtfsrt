@@ -54,6 +54,9 @@ class GtfsRealtimeServer:
             raise ValueError("required config key 'app.pattern' missing")
 
         # create adapter according to settings
+        if self._config['app']['adapter']['type'] == 'vdv':
+            from .adapter.vdv import VdvStandardAdapter
+            self._adapter = VdvStandardAdapter(self._config)
         if self._config['app']['adapter']['type'] == 'nvbw.ems':
             from .adapter.nvbw.ems import EmsAdapter
             self._adapter = EmsAdapter(self._config)
