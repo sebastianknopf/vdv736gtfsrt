@@ -69,7 +69,7 @@ class VdvStandardAdapter(BaseAdapter):
             if len(active_period.keys()) > 0:
                 active_periods.append(active_period)
 
-        return active_period
+        return active_periods
 
     def _convert_informed_entities(self, public_transport_situation: PublicTransportSituation) -> list:
         informed_entities = list()
