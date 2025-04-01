@@ -35,7 +35,7 @@ class VdvStandardAdapter_Test(unittest.TestCase):
             self.assertEqual('UNKNOWN_EFFECT', result['alert']['effect'])
 
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
-            self.assertEqual('de', result['alert']['desciption_text']['translation'][0]['language'])
+            self.assertEqual('de', result['alert']['description_text']['translation'][0]['language'])
 
             self.assertEqual(1717984800, result['alert']['active_period'][0]['start'])
             self.assertNotIn('end', result['alert']['active_period'][0])
@@ -62,7 +62,7 @@ class VdvStandardAdapter_Test(unittest.TestCase):
             self.assertEqual('SIGNIFICANT_DELAYS', result['alert']['effect'])
 
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
-            self.assertEqual('de', result['alert']['desciption_text']['translation'][0]['language'])
+            self.assertEqual('de', result['alert']['description_text']['translation'][0]['language'])
 
             self.assertEqual(1728547200, result['alert']['active_period'][0]['start'])
             self.assertEqual(1730077200, result['alert']['active_period'][0]['end'])
