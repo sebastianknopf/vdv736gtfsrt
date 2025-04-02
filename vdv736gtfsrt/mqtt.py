@@ -170,6 +170,7 @@ class GtfsRealtimePublisher:
                 logging.info(f"Published alert {alert_id}")
 
             except Exception as ex:
+                logging.exception(ex) # TODO: remove this again
                 logging.error(f"Could not convert situation {alert_id} due to an exception")
 
              
