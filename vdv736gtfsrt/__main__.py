@@ -12,7 +12,7 @@ def cli():
     pass
 
 @cli.command()
-@click.argument('config')
+@click.argument('config', default='/app/config/config.yaml')
 @click.option('--host', '-h', default='0.0.0.0', help='Hostname for the server to listen')
 @click.option('--port', '-p', default='8080', help='Port for the server to listen')
 def server(config, host, port):
@@ -30,7 +30,7 @@ def server(config, host, port):
     )
 
 @cli.command()
-@click.argument('config')
+@click.argument('config', default='/app/config/config.yaml')
 @click.option('--mqtt', '-m', help='MQTT connection and topic URI')
 def mqtt(config, mqtt):
 
