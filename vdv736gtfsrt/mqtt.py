@@ -24,7 +24,7 @@ class GtfsRealtimePublisher:
         self._expiration = expiration
         
         # create internal logger instance
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
 
         self._logger = logging.getLogger()
 
@@ -172,6 +172,7 @@ class GtfsRealtimePublisher:
                 self._logger.info(f"Published alert {alert_id}")
 
             except Exception as ex:
+                self._logger.error(ex)
                 self._logger.error(f"Could not convert situation {alert_id} due to an exception")
 
              
