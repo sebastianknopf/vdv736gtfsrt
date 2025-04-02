@@ -18,12 +18,36 @@ from vdv736.sirixml import get_value as sirixml_get_value
 from vdv736.subscriber import Subscriber
 from vdv736.delivery import SiriDelivery
 
+class LoggingFormatter(logging.Formatter):
+    def format(self, record):
+        LOG_COLORS = {
+            "DEBUG": "\x1b[36m",    # Cyan
+            "INFO": "\x1b[32m",     # Grün
+            "WARNING": "\x1b[33m",  # Gelb
+            "ERROR": "\x1b[31m",    # Rot
+            "CRITICAL": "\x1b[41m", # Roter Hintergrund
+            "RESET": "\x1b[0m"      # Zurücksetzen
+        }
+
+        log_color = LOG_COLORS.get(record.levelname, LOG_COLORS["RESET"])
+        log_time = self.formatTime(record, "%Y-%m-%d %H:%M:%S")
+        log_message = f"{log_time} {log_color}{record.levelname:<8}{LOG_COLORS['RESET']} {record.message}"
+
+        return log_message
+
 class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
         
+        # create internal logger instance
+        handler = logging.StreamHandler()
+        handler.setFormatter(LoggingFormatter)
         logging.basicConfig(level=logging.INFO)
+
+        self._logger = logging.getLogger()
+        self._logger.setLevel(logging.INFO)
+        self._logger.handlers = [handler]
 
         # load config and set default values
         with open(config_filename, 'r') as config_file:
@@ -166,10 +190,9 @@ class GtfsRealtimePublisher:
 
                 self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
 
-                logging.info(f"Published alert {alert_id}")
+                self._logger.info(f"Published alert {alert_id}")
 
             except Exception as ex:
-                logging.exception(ex) # TODO: remove this again
-                logging.error(f"Could not convert situation {alert_id} due to an exception")
+                self._logger.error(f"Could not convert situation {alert_id} due to an exception")
 
              
