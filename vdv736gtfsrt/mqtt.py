@@ -1,3 +1,4 @@
+import logging
 import pytz
 import yaml
 
@@ -165,7 +166,10 @@ class GtfsRealtimePublisher:
                 properties.MessageExpiryInterval = self._expiration
 
                 self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
+
+                logging.info(f"Published alert {alert_id}")
+
             except Exception as ex:
-                self._logger.error(f"Could not convert situation {alert_id} due to an exception")
+                logging.error(f"Could not convert situation {alert_id} due to an exception")
 
              
