@@ -22,7 +22,7 @@ class VdvStandardAdapter(BaseAdapter):
         
         header_text = sirixml_get_value(public_transport_situation, 'Summary')
         if header_text is None:
-            raise ValueError(f"Missing summary field for situation {entity_id}")
+            raise ValueError(f"Missing field 'Summary' for situation {entity_id}")
         
         alert_header_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Summary.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
@@ -31,7 +31,7 @@ class VdvStandardAdapter(BaseAdapter):
 
         description_text = sirixml_get_value(public_transport_situation, 'Detail')
         if description_text is None:
-            raise ValueError(f"Missing detail field for situation {entity_id}")
+            raise ValueError(f"Missing field 'Detail' for situation {entity_id}")
         
         alert_description_text = create_translated_string(
             [sirixml_get_attribute(public_transport_situation, 'Detail.{http://www.w3.org/XML/1998/namespace}lang', 'de')],
