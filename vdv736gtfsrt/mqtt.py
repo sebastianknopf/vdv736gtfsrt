@@ -173,6 +173,5 @@ class GtfsRealtimePublisher:
 
             except Exception as ex:
                 self._logger.error(ex)
-                self._logger.error(f"Could not convert situation {alert_id} due to an exception")
 
              
