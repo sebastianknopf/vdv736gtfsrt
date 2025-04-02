@@ -97,7 +97,7 @@ class GtfsRealtimePublisher:
         elif self._config['app']['pattern'] == 'request/response':
             
             # start subscriber using publish/subscribe mode
-            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False) as subscriber:
                 self._subscriber = subscriber
                 self._subscriber.set_callbacks(self._subscriber_on_delivery)
 
