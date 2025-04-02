@@ -1,4 +1,5 @@
 import pytz
+import yaml
 
 from .config import Configuration
 from .repeatedtimer import RepeatedTimer
@@ -18,9 +19,14 @@ from vdv736.delivery import SiriDelivery
 
 class GtfsRealtimePublisher:
 
-    def __init__(self, config: dict, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
-        self._config = Configuration.default_config(config)
+    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
+        
+        # load config and set default values
+        with open(config_filename, 'r') as config_file:
+            self._config = yaml.safe_load(config_file)
+        
+        self._config = Configuration.default_config(self._config)
 
         # check for required non-default configs
         if 'app' not in self._config:
