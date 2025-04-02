@@ -150,15 +150,22 @@ class GtfsRealtimePublisher:
             feed_message['entity'] = list()
             
             # convert to PBF message and publish
-            feed_message['entity'].append({
-                'id': alert_id,
-                'alert': self._adapter.convert(situation)
-            })
+            try:
+                alert = self._adapter.convert(situation)
 
-            pbf_object = gtfs_realtime_pb2.FeedMessage()
-            ParseDict(feed_message, pbf_object)
+                feed_message['entity'].append({
+                    'id': alert_id,
+                    'alert': alert
+                })
 
-            properties = Properties(PacketTypes.PUBLISH)
-            properties.MessageExpiryInterval = self._expiration
+                pbf_object = gtfs_realtime_pb2.FeedMessage()
+                ParseDict(feed_message, pbf_object)
 
-            self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties) 
+                properties = Properties(PacketTypes.PUBLISH)
+                properties.MessageExpiryInterval = self._expiration
+
+                self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
+            except Exception as ex:
+                self._logger.error(f"Could not convert situation {alert_id} due to an exception")
+
+             
