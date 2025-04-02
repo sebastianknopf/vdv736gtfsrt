@@ -154,10 +154,7 @@ class GtfsRealtimePublisher:
             try:
                 alert = self._adapter.convert(situation)
 
-                feed_message['entity'].append({
-                    'id': alert_id,
-                    'alert': alert
-                })
+                feed_message['entity'].append(alert)
 
                 pbf_object = gtfs_realtime_pb2.FeedMessage()
                 ParseDict(feed_message, pbf_object)
