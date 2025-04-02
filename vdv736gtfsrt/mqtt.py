@@ -23,6 +23,8 @@ class GtfsRealtimePublisher:
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
         
+        logging.basicConfig(level=logging.INFO)
+
         # load config and set default values
         with open(config_filename, 'r') as config_file:
             self._config = yaml.safe_load(config_file)
