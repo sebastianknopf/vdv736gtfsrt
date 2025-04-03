@@ -29,6 +29,7 @@ docker run
    --rm
    -v /host/etc/vdv736gtfsrt/config.yaml:/app/config/config.yaml
    -v /host/etc/vdv736gtfsrt/participants.yaml:/app/config/participants.yaml
+   -v /host/var/log/vdv736gtfsrt/xml:/app/datalog
    -p 8080:8080
    -p 9091:9091
    sebastianknopf/vdv736gtfsrt:latest
@@ -65,6 +66,7 @@ docker run
    --rm
    -v /host/etc/vdv736gtfsrt/config.yaml:/app/config/config.yaml
    -v /host/etc/vdv736gtfsrt/participants.yaml:/app/config/participants.yaml
+   -v /host/var/log/vdv736gtfsrt/xml:/app/datalog
    -p 9091:9091
    sebastianknopf/vdv736gtfsrt:latest
    mqtt -m mqtt://[username]:[password]@[domain]/here/is/your/topic/for/alert/[alertId]
@@ -74,6 +76,9 @@ Replace `[username]`, `[password]`, `[domain]` by your values. The key `[alertId
 
 _Note: In this example there're two ports configured: One port for the GTFS-RT server (8080) and one port for the VDV736 subscriber (9091). The latter port depends on
 the participant configuration in `participants.yaml` as well as the used pattern (publish/subscribe or request/response)._
+
+### Using Data Logs
+By setting the configuratiion key `app.datalog_enabled` all requests and responses are logged to the directory `./datalog` as raw XML for debugging purposes. When running in Docker, you need to mount a directory on your host to `/app/datalog` to access the XML logs.
 
 ## License
 This project is licensed under the Apache License. See [LICENSE.md](LICENSE.md) for more information.
