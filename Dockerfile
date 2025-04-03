@@ -24,6 +24,5 @@ RUN rm -rf .github
 EXPOSE 8080
 
 # ready - run the converter
-ENTRYPOINT ["sh", "-c", "python vdv736gtfsrt"]
-
-# CMD is defined at runtime
+ENTRYPOINT ["python", "vdv736gtfsrt"]
+CMD ["--version"]
