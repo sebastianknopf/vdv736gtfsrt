@@ -16,7 +16,7 @@ dependencies = [
     "memcache",
     "paho-mqtt",
     "pytz",
-    "pyvdv736>=0.1.0",
+    "pyvdv736>=0.1.1",
     "pyyaml",
     "uvicorn",
 ]
