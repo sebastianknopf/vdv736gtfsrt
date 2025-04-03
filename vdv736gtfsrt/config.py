@@ -21,7 +21,8 @@ class Configuration:
                 'status_request_interval': 300,
                 'data_update_interval': 60,
                 'timezone': 'Europe/Berlin',
-                'caching_enabled': False
+                'caching_enabled': False,
+                'datalog_enabled': False
             },
             'caching': {
                 'caching_server_endpoint': '[YourCachingServerEndpoint]',

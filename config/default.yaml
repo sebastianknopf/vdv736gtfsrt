@@ -11,7 +11,8 @@ app:
   status_request_interval: 300                            # interval in seconds when a status request is performed by the subscriber; only used in publish/subscribe mode
   data_update_interval: 60                                # interval in seconds when a data update is performed; only used in request/response mode
   timezone: Europe/Berlin                                 # the timezone the server runs in
-  caching_enabled: False                                  # whether to use a memcached instance to cache GTFS-RT data
+  caching_enabled: False                                  # enable/disable caching of the GTFS-RT data; only used in server mode
+  datalog_enabled: false                                  # enable/disable data logging to ./datalog
 caching:
   caching_server_endpoint: '[YourCachingServerEndpoint]'  # the IP address or hostname of the memcached server
   caching_server_ttl_seconds: 120                         # time to live of each cache entry
