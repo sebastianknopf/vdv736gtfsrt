@@ -92,10 +92,14 @@ class GtfsRealtimeServer:
 
     @asynccontextmanager
     async def _lifespan(self, app):
+        
+        # set datalog directory
+        datalog = './datalog' if self._config['app']['datalog_enabled'] else None
+        
         if self._config['app']['pattern'] == 'publish/subscribe':
             
             # start subscriber using publish/subscribe mode
-            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
 
                 # subscribe at the defined publisher
@@ -119,7 +123,7 @@ class GtfsRealtimeServer:
         elif self._config['app']['pattern'] == 'request/response':
             
             # start subscriber with direct request mode
-            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False) as subscriber:
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False, datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
 
                 # start internal repeated timer for subscriber's data direct request

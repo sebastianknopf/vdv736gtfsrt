@@ -84,10 +84,14 @@ class GtfsRealtimePublisher:
         self._mqtt.connect(host, int(port))
 
     def run(self) -> None:
+        
+        # set datalog directory
+        datalog = './datalog' if self._config['app']['datalog_enabled'] else None
+        
         if self._config['app']['pattern'] == 'publish/subscribe':
             
             # start subscriber with direct request mode
-            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants']) as subscriber:
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
                 self._subscriber.set_callbacks(self._subscriber_on_delivery)
                 
@@ -103,7 +107,7 @@ class GtfsRealtimePublisher:
         elif self._config['app']['pattern'] == 'request/response':
             
             # start subscriber using publish/subscribe mode
-            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False) as subscriber:
+            with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False, datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
                 self._subscriber.set_callbacks(self._subscriber_on_delivery)
 
