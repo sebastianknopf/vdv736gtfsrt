@@ -1,0 +1,17 @@
+app:
+  adapter:
+    type: 'vdv'                                           # adapter type used to transform the VDV736 data into GTFS-RT
+    url:                                                  # strictly required; as VDV736 does not provide a field for transmitting a static URL, a URL for GTFS-RT alerts must be specified here
+      de: 'https://yourdomain.dev/alerts/de/[alertId]'    # use different keys for different languages, [alertId] is replaced by the entity ID
+  endpoint: /gtfsrt-service-alerts.pbf                    # endpoint URL for the GTFS-RT server
+  participants: ./config/participants.yaml                # path to the participants config file
+  subscriber: PY_TEST_SUBSCRIBER                          # strictly required; participant ID of the subscriber
+  publisher: PY_TEST_PUBLISHER                            # strictly required; participant ID of the publisher providing data
+  pattern: publish/subscribe                              # requesting pattern to be used
+  status_request_interval: 300                            # interval in seconds when a status request is performed by the subscriber; only used in publish/subscribe mode
+  data_update_interval: 60                                # interval in seconds when a data update is performed; only used in request/response mode
+  timezone: Europe/Berlin                                 # the timezone the server runs in
+  caching_enabled: False                                  # whether to use a memcached instance to cache GTFS-RT data
+caching:
+  caching_server_endpoint: '[YourCachingServerEndpoint]'  # the IP address or hostname of the memcached server
+  caching_server_ttl_seconds: 120                         # time to live of each cache entry

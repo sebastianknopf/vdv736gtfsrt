@@ -1,7 +1,0 @@
-app:
-  adapter:
-    type: 'vdv'
-    url: 
-      de: 'https://yourdomain.dev/alerts/de/[alertId]'
-  subscriber: PY_TEST_SUBSCRIBER
-  publisher: PY_TEST_PUBLISHER
