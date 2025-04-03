@@ -14,7 +14,7 @@ class Configuration:
                 #    'url': 'https://yourdomain.dev/[alertId]
                 },
                 'endpoint': '/gtfsrt-service-alerts.pbf',
-                #'participants': 'participants.yaml',
+                'participants': './config/participants.yaml',
                 #'subscriber': 'PY_TEST_SUBSCRIBER',
                 #'publisher': 'PY_TEST_PUBLISHER',
                 'pattern': 'publish/subscribe',
