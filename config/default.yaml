@@ -4,7 +4,7 @@ app:
     url:                                                  # strictly required; as VDV736 does not provide a field for transmitting a static URL, a URL for GTFS-RT alerts must be specified here
       de: 'https://yourdomain.dev/alerts/de/[alertId]'    # use different keys for different languages, [alertId] is replaced by the entity ID
   endpoint: /gtfsrt-service-alerts.pbf                    # endpoint URL for the GTFS-RT server
-  participants: ./config/participants.yaml                # path to the participants config file
+  participants: ./config/participants.yaml                # path to the participants config file; MUST BE ALWAYS ./config/participants.yaml WHEN RUNNING IN DOCKER
   subscriber: PY_TEST_SUBSCRIBER                          # strictly required; participant ID of the subscriber
   publisher: PY_TEST_PUBLISHER                            # strictly required; participant ID of the publisher providing data
   pattern: publish/subscribe                              # requesting pattern to be used
