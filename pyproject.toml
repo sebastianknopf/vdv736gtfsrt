@@ -10,25 +10,18 @@ readme = "README.md"
 license = {text = "Apache License (2.0)"}
 dependencies = [
     "click",
-    "fastapi[all]",
+    "fastapi[standard]",
     "gtfs-realtime-bindings",
     "lxml",
     "memcache",
     "paho-mqtt",
     "pytz",
-    "pyvdv736>=0.1.1",
+    "pyvdv736>=0.1.4",
     "pyyaml",
-    "uvicorn",
 ]
 requires-python = ">=3.10"
 
 dynamic = ["version"]
 
-[tool.setuptools]
-packages = ["vdv736gtfsrt"]
-
-[tool.setuptools.package-dir]
-vdv736gtfsrt = "vdv736gtfsrt"
-
 [tool.setuptools_scm]
-write_to = "vdv736gtfsrt/version.py"
+write_to = "src/vdv736gtfsrt/version.py"

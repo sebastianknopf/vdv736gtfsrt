@@ -209,6 +209,6 @@ pip-selfcheck.json
 /config/dev_participants.yaml
 /datalog/*
 
-vdv736gtfsrt/version.py
+src/vdv736gtfsrt/version.py
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,python,venv
