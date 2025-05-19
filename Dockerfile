@@ -24,5 +24,5 @@ RUN rm -rf .github
 EXPOSE 8080
 
 # ready - run the converter
-ENTRYPOINT ["python", "vdv736gtfsrt"]
+ENTRYPOINT ["python", "-m", "vdv736gtfsrt"]
 CMD ["--version"]
