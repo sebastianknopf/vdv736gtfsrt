@@ -9,9 +9,13 @@ def create_translated_string(languages: List[str], texts: List[str]) -> dict:
         raise ValueError('the number of languages must be the same like the number of texts')
     
     for n in range(0, len(languages)):
+        
+        translated_text = texts[n]
+        translated_text = translated_text.replace('\t', '').replace('  ', ' ')
+        
         translated_string['translation'].append({
             'language': languages[n].lower(),
-            'text': texts[n]
+            'text': translated_text
         })
 
     return translated_string
