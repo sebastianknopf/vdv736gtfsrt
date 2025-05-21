@@ -69,7 +69,44 @@ class VdvStandardAdapter_Test(unittest.TestCase):
 
             self.assertEqual(2, len(result['alert']['informed_entity']))
             self.assertIn('route_id', result['alert']['informed_entity'][0])
+            self.assertNotIn('direction_id', result['alert']['informed_entity'][0])
             self.assertEqual('85:823:16', result['alert']['informed_entity'][0]['route_id'])
             self.assertIn('route_id', result['alert']['informed_entity'][1])
+            self.assertNotIn('direction_id', result['alert']['informed_entity'][1])
             self.assertEqual('85:823:15', result['alert']['informed_entity'][1]['route_id'])
+
+    def test_SampleSituation3(self):
+
+        xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleSituation3.xml')
+        with open(xml_filename, 'r') as xml_file:
+            situation = fromstring(xml_file.read())
+
+            result = self.adapter.convert(situation)
+
+            self.assertEqual(2, len(result['alert']['informed_entity']))
+
+            self.assertIn('route_id', result['alert']['informed_entity'][0])
+            self.assertIn('direction_id', result['alert']['informed_entity'][0])
+            self.assertEqual('vpe:04734:_:H:j25', result['alert']['informed_entity'][0]['route_id'])
+            self.assertEqual(0, result['alert']['informed_entity'][0]['direction_id'])
+
+            self.assertIn('route_id', result['alert']['informed_entity'][1])
+            self.assertIn('direction_id', result['alert']['informed_entity'][1])
+            self.assertEqual('vpe:04734:_:R:j25', result['alert']['informed_entity'][1]['route_id'])
+            self.assertEqual(1, result['alert']['informed_entity'][1]['direction_id'])
+
+    def test_SampleSituation4(self):
+
+        xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleSituation4.xml')
+        with open(xml_filename, 'r') as xml_file:
+            situation = fromstring(xml_file.read())
+
+            result = self.adapter.convert(situation)
+
+            self.assertIn('route_id', result['alert']['informed_entity'][0])
+            self.assertIn('direction_id', result['alert']['informed_entity'][0])
+            self.assertIn('stop_id', result['alert']['informed_entity'][0])
+            self.assertEqual('vpe:04720:_:H:j25', result['alert']['informed_entity'][0]['route_id'])
+            self.assertEqual(0, result['alert']['informed_entity'][0]['direction_id'])
+            self.assertEqual('7901106', result['alert']['informed_entity'][0]['stop_id'])
             

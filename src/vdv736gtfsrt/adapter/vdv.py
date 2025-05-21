@@ -88,19 +88,37 @@ class VdvStandardAdapter(BaseAdapter):
             if sirixml_exists(consequence, 'Affects.Networks'):
                 for network in sirixml_get_elements(consequence, 'Affects.Networks.AffectedNetwork'):
                     for line in sirixml_get_elements(network, 'AffectedLine'):
-                        informed_entities.append({
-                            'route_id': sirixml_get_value(line, 'LineRef', None)
-                        })
+                        direction_id = sirixml_get_value(line, 'Direction.DirectionRef', None)
+                        if direction_id is not None:
+                            direction_id = self._convert_direction_id(direction_id)
+                            informed_entities.append({
+                                'route_id': sirixml_get_value(line, 'LineRef', None),
+                                'direction_id': direction_id
+                            })
+                        else:
+                            informed_entities.append({
+                                'route_id': sirixml_get_value(line, 'LineRef', None)
+                            })
+
             elif sirixml_exists(consequence, 'Affects.StopPlaces'):
                 for stop_place in sirixml_get_elements(consequence, 'Affects.StopPlaces.AffectedStopPlace'):
                     stop_id = sirixml_get_value(stop_place, 'StopPlaceRef', None)
 
                     if sirixml_exists(stop_place, 'Lines.AffectedLine'):
                         for stop_place_line in sirixml_get_elements(stop_place, 'Lines.AffectedLine'):
-                            informed_entities.append({
-                                'route_id': sirixml_get_value(stop_place_line, 'LineRef'),
-                                'stop_id': stop_id
-                            })
+                            direction_id = sirixml_get_value(stop_place_line, 'Direction.DirectionRef', None)
+                            if direction_id is not None:
+                                direction_id = self._convert_direction_id(direction_id)
+                                informed_entities.append({
+                                    'route_id': sirixml_get_value(stop_place_line, 'LineRef', None),
+                                    'stop_id': stop_id,
+                                    'direction_id': direction_id
+                                })
+                            else:
+                                informed_entities.append({
+                                    'route_id': sirixml_get_value(stop_place_line, 'LineRef'),
+                                    'stop_id': stop_id
+                                })
                     else:
                         informed_entities.append({
                             'stop_id': stop_id
@@ -156,3 +174,16 @@ class VdvStandardAdapter(BaseAdapter):
             return sorted(effects, key=lambda x: prios.index(x))[0]
         else:
             return 'UNKNOWN_EFFECT'
+        
+    def _convert_direction_id(self, direction_id: str) -> int:
+        direction_id = direction_id \
+            .replace('1', '0') \
+            .replace('2', '0') \
+            .replace('H', '0') \
+            .replace('h', '0') \
+            .replace('R', '1') \
+            .replace('r', '1')
+        
+        direction_id = int(direction_id)
+
+        return direction_id
