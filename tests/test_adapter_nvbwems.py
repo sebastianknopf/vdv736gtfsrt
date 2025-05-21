@@ -27,7 +27,7 @@ class Adapter_NvbwEms_Test(unittest.TestCase):
 
             result = self.adapter.convert(situation)
             
-            self.assertEqual('UNKNOWN_CAUSE', result['alert']['cause'])
+            self.assertEqual('CONSTRUCTION', result['alert']['cause'])
             self.assertEqual('UNKNOWN_EFFECT', result['alert']['effect'])
 
     def test_SampleSituation2(self):
