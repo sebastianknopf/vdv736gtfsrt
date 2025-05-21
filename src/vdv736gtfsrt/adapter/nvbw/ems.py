@@ -6,6 +6,6 @@ class EmsAdapter(VdvStandardAdapter):
 
     def _convert_alert_effect(self, consequences, map: dict|None = None) -> str:
         conditions_map = conditions
-        conditions_map[''] = 'UNKNOWN_EFFECT'
+        conditions_map['noService'] = 'NO_SERVICE'
         
         return super()._convert_alert_effect(consequences, conditions_map)
