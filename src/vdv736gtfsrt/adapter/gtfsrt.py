@@ -1,3 +1,5 @@
+import re
+
 from datetime import datetime
 from io import StringIO
 from html.parser import HTMLParser
@@ -35,7 +37,8 @@ def create_translated_string(languages: List[str], texts: List[str]) -> dict:
     for n in range(0, len(languages)):
         
         translated_text = _strip_tags(texts[n])
-        translated_text = translated_text.replace('\t', '').replace('  ', ' ')
+        translated_text = translated_text.replace('\t', '')
+        translated_text = re.sub(' +', ' ', translated_text)
         
         translated_string['translation'].append({
             'language': languages[n].lower(),
