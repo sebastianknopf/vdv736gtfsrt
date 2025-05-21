@@ -170,7 +170,7 @@ class GtfsRealtimeServer:
         # send response
         feed_message = self._create_feed_message(objects)
         if format  == 'json':
-            json_result = json.dumps(feed_message, indent=4)
+            json_result = json.dumps(feed_message, indent=4, ensure_ascii=False)
 
             if self._cache is not None:
                 self._cache.set(f"{request.url.path}-{format}", json_result, self._config['caching']['caching_service_alerts_ttl_seconds'])

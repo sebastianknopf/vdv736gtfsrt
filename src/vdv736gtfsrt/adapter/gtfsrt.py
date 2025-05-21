@@ -1,5 +1,31 @@
+import re
+
 from datetime import datetime
+from io import StringIO
+from html.parser import HTMLParser
 from typing import List
+
+class _HtmlTagStripper(HTMLParser):
+     
+    def __init__(self) -> None:
+         super().__init__()
+         
+         self.reset()
+         self.strict = False
+         self.convert_charrefs = True
+         self.text = StringIO()
+
+    def handle_data(self, d: str) -> None:
+         self.text.write(d)
+
+    def get_stripped_text(self) -> str:
+         return self.text.getvalue()
+    
+def _strip_tags(input: str) -> str:
+     s = _HtmlTagStripper()
+     s.feed(input)
+
+     return s.get_stripped_text()
 
 def create_translated_string(languages: List[str], texts: List[str]) -> dict:
     translated_string = dict()
@@ -9,9 +35,14 @@ def create_translated_string(languages: List[str], texts: List[str]) -> dict:
         raise ValueError('the number of languages must be the same like the number of texts')
     
     for n in range(0, len(languages)):
+        
+        translated_text = _strip_tags(texts[n])
+        translated_text = translated_text.replace('\t', '')
+        translated_text = re.sub(' +', ' ', translated_text)
+        
         translated_string['translation'].append({
             'language': languages[n].lower(),
-            'text': texts[n]
+            'text': translated_text
         })
 
     return translated_string
