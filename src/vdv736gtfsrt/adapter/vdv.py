@@ -65,9 +65,9 @@ class VdvStandardAdapter(BaseAdapter):
     def _convert_active_periods(self, public_transport_situation: PublicTransportSituation) -> list:
         active_periods = list()
 
-        for publication_window in public_transport_situation.PublicationWindow:
-            start_time = sirixml_get_value(publication_window, 'StartTime')
-            end_time = sirixml_get_value(publication_window, 'EndTime')
+        for validity_period in public_transport_situation.ValidityPeriod:
+            start_time = sirixml_get_value(validity_period, 'StartTime')
+            end_time = sirixml_get_value(validity_period, 'EndTime')
 
             active_period = dict()
             if start_time is not None:
