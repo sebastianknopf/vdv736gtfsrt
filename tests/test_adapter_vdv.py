@@ -64,7 +64,7 @@ class VdvStandardAdapter_Test(unittest.TestCase):
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
             self.assertEqual('de', result['alert']['description_text']['translation'][0]['language'])
 
-            self.assertEqual(1728547200, result['alert']['active_period'][0]['start'])
+            self.assertEqual(1728874800, result['alert']['active_period'][0]['start'])
             self.assertEqual(1730077200, result['alert']['active_period'][0]['end'])
 
             self.assertEqual(2, len(result['alert']['informed_entity']))
@@ -82,6 +82,9 @@ class VdvStandardAdapter_Test(unittest.TestCase):
             situation = fromstring(xml_file.read())
 
             result = self.adapter.convert(situation)
+
+            self.assertEqual(1748773800, result['alert']['active_period'][0]['start'])
+            self.assertEqual(1748786400, result['alert']['active_period'][0]['end'])
 
             self.assertEqual(2, len(result['alert']['informed_entity']))
 
