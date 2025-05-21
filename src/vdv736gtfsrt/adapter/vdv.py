@@ -146,17 +146,22 @@ class VdvStandardAdapter(BaseAdapter):
 
         return informed_entities
     
-    def _convert_alert_cause(self, cause: str) -> str:
-        cause_map = causes
+    def _convert_alert_cause(self, cause: str, map: dict|None = None) -> str:
+        if map is not None and len(map) > 0:
+            cause_map = map
+        else:
+            cause_map = causes
         
         if cause in cause_map:
             return cause_map[cause]
         else:
             return 'UNKNOWN_CAUSE'
 
-    def _convert_alert_effect(self, consequences) -> str:
-        condition_map = conditions
-        condition_map['delayed'] = 'SIGNIFICANT_DELAYS'
+    def _convert_alert_effect(self, consequences, map: dict|None = None) -> str:
+        if map is not None and len(map) > 0:
+            condition_map = map
+        else:
+            condition_map = conditions
 
         # run through all consequences and convert conditions to effects
         effects = list()

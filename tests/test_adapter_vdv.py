@@ -59,7 +59,7 @@ class VdvStandardAdapter_Test(unittest.TestCase):
             self.assertEqual('https://yourdomain.com/alerts/de/18acba15-9669-58af-91f1-7a0a3a9c3b98', result['alert']['url']['translation'][0]['text'])
             
             self.assertEqual('CONSTRUCTION', result['alert']['cause'])
-            self.assertEqual('SIGNIFICANT_DELAYS', result['alert']['effect'])
+            self.assertEqual('UNKNOWN_EFFECT', result['alert']['effect'])
 
             self.assertEqual('de', result['alert']['header_text']['translation'][0]['language'])
             self.assertEqual('de', result['alert']['description_text']['translation'][0]['language'])
