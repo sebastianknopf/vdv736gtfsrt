@@ -39,7 +39,7 @@
     </Affects>
     <Consequences>
     <Consequence>
-        <Condition>diverted</Condition>
+        <Condition>noService</Condition>
         <Severity>normal</Severity>
         <Affects>
         <StopPlaces>
