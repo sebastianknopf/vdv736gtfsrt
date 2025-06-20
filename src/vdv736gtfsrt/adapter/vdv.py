@@ -13,7 +13,7 @@ class VdvStandardAdapter(BaseAdapter):
     def __init__(self, config: dict) -> None:
         self._config = config
 
-    def convert(self, public_transport_situation: PublicTransportSituation) -> tuple[dict[str, str], bool]:
+    def convert(self, public_transport_situation: PublicTransportSituation) -> tuple[dict, bool]:
         entity_id = sirixml_get_value(public_transport_situation, 'SituationNumber')
 
         alert_url = create_url(self._config['app']['adapter']['url'], alertId=entity_id)

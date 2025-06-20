@@ -2,8 +2,10 @@ import logging
 import pytz
 import yaml
 
-from .config import Configuration
-from .repeatedtimer import RepeatedTimer
+from threading import Timer
+
+from vdv736gtfsrt.config import Configuration
+from vdv736gtfsrt.repeatedtimer import RepeatedTimer
 
 from datetime import datetime
 from google.transit import gtfs_realtime_pb2
@@ -161,21 +163,41 @@ class GtfsRealtimePublisher:
             
             # convert to PBF message and publish
             try:
-                alert = self._adapter.convert(situation)
+                conversion: tuple[dict[str, str], bool] = self._adapter.convert(situation)
+                alert, is_closing = conversion
 
                 feed_message['entity'].append(alert)
 
-                pbf_object = gtfs_realtime_pb2.FeedMessage()
-                ParseDict(feed_message, pbf_object)
-
-                properties = Properties(PacketTypes.PUBLISH)
-                properties.MessageExpiryInterval = self._expiration
-
-                self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
-
                 self._logger.info(f"Published alert {alert_id}")
+                self._publish_feed_message(topic, feed_message)
+
+                # if the event is closing currently, emulate the closed state
+                # see #23 for more information
+                if is_closing:
+                    delay_seconds: int = 600
+                    self._logger.info(f"Enqueued alert {alert_id} for deletion after {delay_seconds}s")
+
+                    self._publish_deleted_feed_message_delayed(topic, feed_message, delay_seconds)
 
             except Exception as ex:
                 self._logger.error(ex)
 
-             
+    def _publish_deleted_feed_message_delayed(self, topic: str, feed_message: dict, delay_seconds=600) -> None:
+        
+        # emulate the publication state 'closed' here
+        # see #23 for more information
+        feed_message['entity'][0]['is_deleted'] = True
+
+        timer: Timer = Timer(delay_seconds, self._publish_feed_message, (topic, feed_message))
+        timer.start()
+    
+    def _publish_feed_message(self, topic: str, feed_message: dict) -> None:
+
+        pbf_object = gtfs_realtime_pb2.FeedMessage()
+        ParseDict(feed_message, pbf_object)
+
+        properties = Properties(PacketTypes.PUBLISH)
+        properties.MessageExpiryInterval = self._expiration
+
+        self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
+                
