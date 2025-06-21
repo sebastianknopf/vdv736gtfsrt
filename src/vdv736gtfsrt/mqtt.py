@@ -24,6 +24,7 @@ class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
+        self._closing_deletion_expiration = 600
         
         # create internal logger instance
         logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
@@ -174,10 +175,9 @@ class GtfsRealtimePublisher:
                 # if the event is closing currently, emulate the closed state
                 # see #23 for more information
                 if is_closing:
-                    delay_seconds: int = 600
-                    self._logger.info(f"Enqueued alert {alert_id} for deletion after {delay_seconds}s")
+                    self._logger.info(f"Enqueued alert {alert_id} for deletion after {self._closing_deletion_expiration}s")
 
-                    self._publish_deleted_feed_message_delayed(topic, feed_message, delay_seconds)
+                    self._publish_deleted_feed_message_delayed(topic, feed_message, self._closing_deletion_expiration)
 
             except Exception as ex:
                 self._logger.error(ex)
@@ -192,6 +192,9 @@ class GtfsRealtimePublisher:
         timer.start()
     
     def _publish_feed_message(self, topic: str, feed_message: dict) -> None:
+
+        if 'is_deleted' in feed_message['entity'][0] and feed_message['entity'][0]['is_deleted']:
+            self._logger.info(f"Sending deleted alert {feed_message['entity'][0]['id']}")
 
         pbf_object = gtfs_realtime_pb2.FeedMessage()
         ParseDict(feed_message, pbf_object)
