@@ -6,4 +6,4 @@ app:
   subscriber: PY_TEST_SUBSCRIBER                          
   publisher: PY_TEST_PUBLISHER                            
   pattern: request/response                              
-  data_update_interval: 5                               
+  data_update_interval: 10                               
