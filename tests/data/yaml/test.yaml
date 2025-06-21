@@ -1,0 +1,9 @@
+app:
+  adapter:                                          
+    url:                                                  
+      de: 'https://yourdomain.dev/alerts/de/[alertId]'   
+  participants: ./tests/data/yaml/test_participants.yaml
+  subscriber: PY_TEST_SUBSCRIBER                          
+  publisher: PY_TEST_PUBLISHER                            
+  pattern: request/response                              
+  data_update_interval: 5                               

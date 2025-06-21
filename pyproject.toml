@@ -23,5 +23,10 @@ requires-python = ">=3.10"
 
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = [
+    "responses"
+]
+
 [tool.setuptools_scm]
 write_to = "src/vdv736gtfsrt/version.py"
