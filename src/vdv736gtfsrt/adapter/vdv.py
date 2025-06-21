@@ -4,7 +4,7 @@ from vdv736.sirixml import get_attribute as sirixml_get_attribute
 from vdv736.sirixml import exists as sirixml_exists
 from vdv736.model import PublicTransportSituation
 
-from vdv736gtfsrt.adapter import BaseAdapter
+from vdv736gtfsrt.adapter.base import BaseAdapter
 from vdv736gtfsrt.vdvdef import causes, conditions, effect_priorities
 from vdv736gtfsrt.gtfsrt import create_url, create_translated_string, iso2unix
 

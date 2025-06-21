@@ -63,10 +63,10 @@ class GtfsRealtimePublisher:
         
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'vdv':
-            from .adapter.vdv import VdvStandardAdapter
+            from vdv736gtfsrt.adapter.vdv import VdvStandardAdapter
             self._adapter = VdvStandardAdapter(self._config)
         elif self._config['app']['adapter']['type'] == 'nvbw.ems':
-            from .adapter.nvbw.ems import EmsAdapter
+            from vdv736gtfsrt.adapter.nvbw.ems import EmsAdapter
             self._adapter = EmsAdapter(self._config)
         else:
             raise ValueError(f"unknown adapter type {self._config['app']['adapter']['type']}")
