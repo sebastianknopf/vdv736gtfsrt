@@ -25,6 +25,8 @@ class GtfsRealtimePublisher:
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
         self._closing_deletion_expiration = 600
+
+        self._run = True
         
         # create internal logger instance
         logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
@@ -102,10 +104,12 @@ class GtfsRealtimePublisher:
                 self._subscriber_status_timer.start()
                 
                 try:
-                    while True:
+                    while self._run:
                         pass
                 except KeyboardInterrupt:
-                    self._subscriber_status_timer.stop()
+                    pass
+
+                self._subscriber_status_timer.stop()
 
         elif self._config['app']['pattern'] == 'request/response':
             
@@ -118,16 +122,22 @@ class GtfsRealtimePublisher:
                 self._data_update_timer.start_immediately()
 
                 try:
-                    while True:
+                    while self._run:
                         pass
                 except KeyboardInterrupt:
-                    self._data_update_timer.stop()
+                    pass
 
-                    self._mqtt.loop_stop()
-                    self._mqtt.disconnect()
+                self._data_update_timer.stop()
+
+                self._mqtt.loop_stop()
+                self._mqtt.disconnect()
 
         else:
             raise ValueError(f"Unknown subscriber pattern {self._config['app']['pattern']}!")
+
+    def quit(self) -> None:
+        self._run = False
+
 
     def _subscriber_status_request(self) -> None:
         if self._subscriber is not None:
