@@ -4,16 +4,16 @@ from vdv736.sirixml import get_attribute as sirixml_get_attribute
 from vdv736.sirixml import exists as sirixml_exists
 from vdv736.model import PublicTransportSituation
 
-from .adapter import BaseAdapter
-from .vdvdef import causes, conditions, effect_priorities
-from .gtfsrt import create_url, create_translated_string, iso2unix
+from vdv736gtfsrt.adapter.base import BaseAdapter
+from vdv736gtfsrt.vdvdef import causes, conditions, effect_priorities
+from vdv736gtfsrt.gtfsrt import create_url, create_translated_string, iso2unix
 
 class VdvStandardAdapter(BaseAdapter):
 
     def __init__(self, config: dict) -> None:
         self._config = config
 
-    def convert(self, public_transport_situation: PublicTransportSituation) -> dict:
+    def convert(self, public_transport_situation: PublicTransportSituation) -> tuple[dict, bool]:
         entity_id = sirixml_get_value(public_transport_situation, 'SituationNumber')
 
         alert_url = create_url(self._config['app']['adapter']['url'], alertId=entity_id)
@@ -59,8 +59,8 @@ class VdvStandardAdapter(BaseAdapter):
         if sirixml_get_value(public_transport_situation, 'Progress', 'published') == 'closed':
             result['is_deleted'] = True
 
-        # return result
-        return result
+        # return result and the boolean indicator whether the event is closing currently or not
+        return result, sirixml_get_value(public_transport_situation, 'Progress', 'published') == 'closing'
     
     def _convert_active_periods(self, public_transport_situation: PublicTransportSituation) -> list:
         active_periods = list()

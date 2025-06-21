@@ -16,12 +16,17 @@ dependencies = [
     "memcache",
     "paho-mqtt",
     "pytz",
-    "pyvdv736>=0.1.4",
+    "pyvdv736>=0.1.5",
     "pyyaml",
 ]
 requires-python = ">=3.10"
 
 dynamic = ["version"]
+
+[project.optional-dependencies]
+test = [
+    "responses"
+]
 
 [tool.setuptools_scm]
 write_to = "src/vdv736gtfsrt/version.py"

@@ -2,8 +2,10 @@ import logging
 import pytz
 import yaml
 
-from .config import Configuration
-from .repeatedtimer import RepeatedTimer
+from threading import Timer
+
+from vdv736gtfsrt.config import Configuration
+from vdv736gtfsrt.repeatedtimer import RepeatedTimer
 
 from datetime import datetime
 from google.transit import gtfs_realtime_pb2
@@ -22,6 +24,9 @@ class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
+        self._closing_deletion_expiration = 600
+
+        self._run = True
         
         # create internal logger instance
         logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
@@ -61,10 +66,10 @@ class GtfsRealtimePublisher:
         
         # create adapter according to settings
         if self._config['app']['adapter']['type'] == 'vdv':
-            from .adapter.vdv import VdvStandardAdapter
+            from vdv736gtfsrt.adapter.vdv import VdvStandardAdapter
             self._adapter = VdvStandardAdapter(self._config)
         elif self._config['app']['adapter']['type'] == 'nvbw.ems':
-            from .adapter.nvbw.ems import EmsAdapter
+            from vdv736gtfsrt.adapter.nvbw.ems import EmsAdapter
             self._adapter = EmsAdapter(self._config)
         else:
             raise ValueError(f"unknown adapter type {self._config['app']['adapter']['type']}")
@@ -99,10 +104,12 @@ class GtfsRealtimePublisher:
                 self._subscriber_status_timer.start()
                 
                 try:
-                    while True:
+                    while self._run:
                         pass
                 except KeyboardInterrupt:
-                    self._subscriber_status_timer.stop()
+                    pass
+
+                self._subscriber_status_timer.stop()
 
         elif self._config['app']['pattern'] == 'request/response':
             
@@ -115,16 +122,22 @@ class GtfsRealtimePublisher:
                 self._data_update_timer.start_immediately()
 
                 try:
-                    while True:
+                    while self._run:
                         pass
                 except KeyboardInterrupt:
-                    self._data_update_timer.stop()
+                    pass
 
-                    self._mqtt.loop_stop()
-                    self._mqtt.disconnect()
+                self._data_update_timer.stop()
+
+                self._mqtt.loop_stop()
+                self._mqtt.disconnect()
 
         else:
             raise ValueError(f"Unknown subscriber pattern {self._config['app']['pattern']}!")
+
+    def quit(self) -> None:
+        self._run = False
+
 
     def _subscriber_status_request(self) -> None:
         if self._subscriber is not None:
@@ -161,21 +174,43 @@ class GtfsRealtimePublisher:
             
             # convert to PBF message and publish
             try:
-                alert = self._adapter.convert(situation)
+                conversion: tuple[dict[str, str], bool] = self._adapter.convert(situation)
+                alert, is_closing = conversion
 
                 feed_message['entity'].append(alert)
 
-                pbf_object = gtfs_realtime_pb2.FeedMessage()
-                ParseDict(feed_message, pbf_object)
-
-                properties = Properties(PacketTypes.PUBLISH)
-                properties.MessageExpiryInterval = self._expiration
-
-                self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
-
                 self._logger.info(f"Published alert {alert_id}")
+                self._publish_feed_message(topic, feed_message)
+
+                # if the event is closing currently, emulate the closed state
+                # see #23 for more information
+                if is_closing:
+                    self._logger.info(f"Enqueued alert {alert_id} for deletion after {self._closing_deletion_expiration}s")
+
+                    self._publish_deleted_feed_message_delayed(topic, feed_message, self._closing_deletion_expiration)
 
             except Exception as ex:
                 self._logger.error(ex)
 
-             
+    def _publish_deleted_feed_message_delayed(self, topic: str, feed_message: dict, delay_seconds=600) -> None:
+        
+        # emulate the publication state 'closed' here
+        # see #23 for more information
+        feed_message['entity'][0]['is_deleted'] = True
+
+        timer: Timer = Timer(delay_seconds, self._publish_feed_message, (topic, feed_message))
+        timer.start()
+    
+    def _publish_feed_message(self, topic: str, feed_message: dict) -> None:
+
+        if 'is_deleted' in feed_message['entity'][0] and feed_message['entity'][0]['is_deleted']:
+            self._logger.info(f"Sending deleted alert {feed_message['entity'][0]['id']}")
+
+        pbf_object = gtfs_realtime_pb2.FeedMessage()
+        ParseDict(feed_message, pbf_object)
+
+        properties = Properties(PacketTypes.PUBLISH)
+        properties.MessageExpiryInterval = self._expiration
+
+        self._mqtt.publish(topic, pbf_object.SerializeToString(), 0, True, properties)
+                

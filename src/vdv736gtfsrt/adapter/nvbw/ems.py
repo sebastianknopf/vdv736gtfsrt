@@ -1,6 +1,6 @@
-from ..vdv import VdvStandardAdapter
-from ..vdvdef import causes, conditions, effect_priorities
-from ..gtfsrt import create_url, create_translated_string, iso2unix
+from vdv736gtfsrt.adapter.vdv import VdvStandardAdapter
+from vdv736gtfsrt.vdvdef import causes, conditions, effect_priorities
+from vdv736gtfsrt.gtfsrt import create_url, create_translated_string, iso2unix
 
 class EmsAdapter(VdvStandardAdapter):
 
