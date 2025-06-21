@@ -1,8 +1,11 @@
+import logging
 import os
 import responses
+import threading
 import unittest
 
 from lxml.objectify import fromstring
+from unittest.mock import patch
 
 from vdv736gtfsrt.mqtt import GtfsRealtimePublisher
 
@@ -24,9 +27,23 @@ class GtfsRealtimePublisher_Test(unittest.TestCase):
             status=200
         )
 
+        logging.basicConfig(handlers=[logging.NullHandler()])
+
         return super().setUp()
     
-    def test_SampleSituation1(self):
+    def test_ClosingSituation(self):
+        
+        # create mock helpers
+        publish_feed_message_called: threading.Event = threading.Event()
+
+        def publish_feed_message_patch(*args, **kws):
+            feed_message: dict = args[1]
+
+            if 'is_deleted' in feed_message['entity'][0] and feed_message['entity'][0]['is_deleted']:
+                publish_feed_message_called.set()
+                raise SystemExit()
+
+        # create instance of GtfsRealtimePublisher and mock it up for testing
         publisher: GtfsRealtimePublisher = GtfsRealtimePublisher(
             './tests/data/yaml/test.yaml',
             'test.mosquitto.org',
@@ -37,7 +54,17 @@ class GtfsRealtimePublisher_Test(unittest.TestCase):
             300
         )
 
-        publisher.run()
+        publisher._closing_deletion_expiration = 5
+
+        # run publisher with testing patch
+        with patch.object(publisher, '_publish_feed_message', side_effect=publish_feed_message_patch):
+            thread: threading.Thread = threading.Thread(target=publisher.run)
+            thread.start()
+
+            publish_feed_message_called.wait(timeout=15)
+            publisher.quit()
+
+            self.assertTrue(publish_feed_message_called.is_set())            
 
     def tearDown(self):
         self.responder.stop()
