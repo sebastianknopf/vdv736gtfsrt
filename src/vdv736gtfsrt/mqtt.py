@@ -2,8 +2,6 @@ import logging
 import pytz
 import yaml
 
-from threading import Timer
-
 from vdv736gtfsrt.config import Configuration
 from vdv736gtfsrt.repeatedtimer import RepeatedTimer
 
@@ -24,7 +22,9 @@ class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
-        self._closing_deletion_expiration = 600
+        self._closing_deletion_expiration = 600 # TODO: remove this line
+
+        self._closing_index: dict = dict()
 
         self._run = True
         
@@ -95,7 +95,7 @@ class GtfsRealtimePublisher:
         
         if self._config['app']['pattern'] == 'publish/subscribe':
             
-            # start subscriber with direct request mode
+            # start subscriber with publish/subscribe mode
             with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
                 self._subscriber.set_callbacks(self._subscriber_on_delivery)
@@ -113,7 +113,7 @@ class GtfsRealtimePublisher:
 
         elif self._config['app']['pattern'] == 'request/response':
             
-            # start subscriber using publish/subscribe mode
+            # start subscriber using request/response mode
             with Subscriber(self._config['app']['subscriber'], self._config['app']['participants'], publish_subscribe=False, datalog_directory=datalog) as subscriber:
                 self._subscriber = subscriber
                 self._subscriber.set_callbacks(self._subscriber_on_delivery)
@@ -151,9 +151,10 @@ class GtfsRealtimePublisher:
         timestamp = datetime.now().astimezone(pytz.timezone(self._config['app']['timezone'])).timestamp()
         timestamp = floor(timestamp)
         
+        processed_index: list = list()
         for situation in sirixml_get_elements(siri_delivery, 'Siri.ServiceDelivery.SituationExchangeDelivery.Situations.PtSituationElement'):
             alert_id = sirixml_get_value(situation, 'SituationNumber')
-            
+
             # generate MQTT topic from placeholders
             # remove leading / if present, see #6 for reference
             topic = self._topic
@@ -179,27 +180,59 @@ class GtfsRealtimePublisher:
 
                 feed_message['entity'].append(alert)
 
-                self._logger.info(f"Published alert {alert_id}")
-                self._publish_feed_message(topic, feed_message)
-
                 # if the event is closing currently, emulate the closed state
                 # see #23 for more information
-                if is_closing:
+                # TODO: remove this block
+                """if is_closing:
                     self._logger.info(f"Enqueued alert {alert_id} for deletion after {self._closing_deletion_expiration}s")
 
-                    self._publish_deleted_feed_message_delayed(topic, feed_message, self._closing_deletion_expiration)
+                    self._publish_deleted_feed_message_delayed(topic, feed_message, self._closing_deletion_expiration)"""
+
+                # special handling for closing situations
+                # see #26 for more information
+                if is_closing:
+                    self._logger.info(f"Added alert {alert_id} to closing situation index")
+                    self._closing_index[alert_id] = (topic, feed_message)
+                
+                    # set effect to NO_EFFECT and delete end timestamps of active periods in order to make consuming systems
+                    # to show up the final message without affecting the trip planning system
+                    # see #26 for more information
+                    feed_message['entity'][0]['alert']['effect'] = 'NO_EFFECT'
+                    for active_period in feed_message['entity'][0]['alert']['active_period']:
+                        if 'end' in active_period:
+                            del active_period['end']
+                
+                # finally publish alert object
+                self._logger.info(f"Published alert {alert_id}")
+                self._publish_feed_message(topic, feed_message)
+                
+                processed_index.append(alert_id)
 
             except Exception as ex:
                 self._logger.error(ex)
 
-    def _publish_deleted_feed_message_delayed(self, topic: str, feed_message: dict, delay_seconds=600) -> None:
+        # build difference between closing_situation_index and processed_situation_index
+        # see #26 for more information
+        diff: list = [id for id in self._closing_index.keys() if id not in processed_index]
+        for id in diff:
+            entry: tuple[str, dict] = self._closing_index[id]
+            topic, feed_message = entry
+
+            feed_message['entity'][0]['is_deleted'] = True
+
+            self._publish_feed_message(topic, feed_message)
+
+            del self._closing_index[id]
+        
+
+    """def _publish_deleted_feed_message_delayed(self, topic: str, feed_message: dict, delay_seconds=600) -> None:
         
         # emulate the publication state 'closed' here
         # see #23 for more information
         feed_message['entity'][0]['is_deleted'] = True
 
         timer: Timer = Timer(delay_seconds, self._publish_feed_message, (topic, feed_message))
-        timer.start()
+        timer.start()"""
     
     def _publish_feed_message(self, topic: str, feed_message: dict) -> None:
 
