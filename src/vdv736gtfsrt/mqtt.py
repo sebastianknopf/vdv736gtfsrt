@@ -177,26 +177,27 @@ class GtfsRealtimePublisher:
                 conversion: tuple[dict, bool] = self._adapter.convert(situation)
                 alert, is_closing = conversion
 
-                feed_message['entity'].append(alert)
+                if alert is not None:
+                    feed_message['entity'].append(alert)
 
-                # special handling for closing situations
-                # see #26 for more information
-                if is_closing:                
-                    # set effect to NO_EFFECT and delete end timestamps of active periods in order to make consuming systems
-                    # to show up the final message without affecting the trip planning system
+                    # special handling for closing situations
                     # see #26 for more information
-                    feed_message['entity'][0]['alert']['effect'] = 'NO_EFFECT'
-                    for active_period in feed_message['entity'][0]['alert']['active_period']:
-                        if 'end' in active_period:
-                            del active_period['end']
-                
-                # finally publish alert object
-                self._logger.info(f"Published alert {alert_id}")
-                self._publish_feed_message(topic, feed_message)
-                   
-                self._last_processed_index[alert_id] = (topic, feed_message)
+                    if is_closing:                
+                        # set effect to NO_EFFECT and delete end timestamps of active periods in order to make consuming systems
+                        # to show up the final message without affecting the trip planning system
+                        # see #26 for more information
+                        feed_message['entity'][0]['alert']['effect'] = 'NO_EFFECT'
+                        for active_period in feed_message['entity'][0]['alert']['active_period']:
+                            if 'end' in active_period:
+                                del active_period['end']
+                    
+                    # finally publish alert object
+                    self._logger.info(f"Published alert {alert_id}")
+                    self._publish_feed_message(topic, feed_message)
+                    
+                    self._last_processed_index[alert_id] = (topic, feed_message)
 
-                processed_index.append(alert_id)
+                    processed_index.append(alert_id)
 
             except Exception as ex:
                 self._logger.error(ex)
