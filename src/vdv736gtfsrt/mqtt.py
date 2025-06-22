@@ -22,9 +22,8 @@ class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
-        self._closing_deletion_expiration = 600 # TODO: remove this line
-
-        self._closing_index: dict = dict()
+        
+        self._last_processed_index: dict = dict()
 
         self._run = True
         
@@ -180,20 +179,9 @@ class GtfsRealtimePublisher:
 
                 feed_message['entity'].append(alert)
 
-                # if the event is closing currently, emulate the closed state
-                # see #23 for more information
-                # TODO: remove this block
-                """if is_closing:
-                    self._logger.info(f"Enqueued alert {alert_id} for deletion after {self._closing_deletion_expiration}s")
-
-                    self._publish_deleted_feed_message_delayed(topic, feed_message, self._closing_deletion_expiration)"""
-
                 # special handling for closing situations
                 # see #26 for more information
-                if is_closing:
-                    self._logger.info(f"Added alert {alert_id} to closing situation index")
-                    self._closing_index[alert_id] = (topic, feed_message)
-                
+                if is_closing:                
                     # set effect to NO_EFFECT and delete end timestamps of active periods in order to make consuming systems
                     # to show up the final message without affecting the trip planning system
                     # see #26 for more information
@@ -205,7 +193,9 @@ class GtfsRealtimePublisher:
                 # finally publish alert object
                 self._logger.info(f"Published alert {alert_id}")
                 self._publish_feed_message(topic, feed_message)
-                
+                   
+                self._last_processed_index[alert_id] = (topic, feed_message)
+
                 processed_index.append(alert_id)
 
             except Exception as ex:
@@ -213,26 +203,16 @@ class GtfsRealtimePublisher:
 
         # build difference between closing_situation_index and processed_situation_index
         # see #26 for more information
-        diff: list = [id for id in self._closing_index.keys() if id not in processed_index]
+        diff: list = [id for id in self._last_processed_index.keys() if id not in processed_index]
         for id in diff:
-            entry: tuple[str, dict] = self._closing_index[id]
+            entry: tuple[str, dict] = self._last_processed_index[id]
             topic, feed_message = entry
 
             feed_message['entity'][0]['is_deleted'] = True
 
             self._publish_feed_message(topic, feed_message)
 
-            del self._closing_index[id]
-        
-
-    """def _publish_deleted_feed_message_delayed(self, topic: str, feed_message: dict, delay_seconds=600) -> None:
-        
-        # emulate the publication state 'closed' here
-        # see #23 for more information
-        feed_message['entity'][0]['is_deleted'] = True
-
-        timer: Timer = Timer(delay_seconds, self._publish_feed_message, (topic, feed_message))
-        timer.start()"""
+            del self._last_processed_index[id]
     
     def _publish_feed_message(self, topic: str, feed_message: dict) -> None:
 
