@@ -160,7 +160,19 @@ class GtfsRealtimeServer:
         objects = []
         for situation_id, situation in self._subscriber.get_situations().items():
             try:
-                alert = self._adapter.convert(situation)
+                conversion: tuple[dict, bool] = self._adapter.convert(situation)
+                alert, is_closing = conversion
+
+                # special handling for closing situations
+                # see #26 for more information
+                if is_closing:                
+                    # set effect to NO_EFFECT and delete end timestamps of active periods in order to make consuming systems
+                    # to show up the final message without affecting the trip planning system
+                    # see #26 for more information
+                    alert['effect'] = 'NO_EFFECT'
+                    for active_period in alert['active_period']:
+                        if 'end' in active_period:
+                            del active_period['end']
 
                 if alert is not None:
                     objects.append(alert)

@@ -22,7 +22,7 @@ class GtfsRealtimePublisher:
 
     def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
         self._expiration = expiration
-        
+
         self._last_processed_index: dict = dict()
 
         self._run = True
@@ -174,7 +174,7 @@ class GtfsRealtimePublisher:
             
             # convert to PBF message and publish
             try:
-                conversion: tuple[dict[str, str], bool] = self._adapter.convert(situation)
+                conversion: tuple[dict, bool] = self._adapter.convert(situation)
                 alert, is_closing = conversion
 
                 feed_message['entity'].append(alert)
