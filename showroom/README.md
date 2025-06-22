@@ -13,3 +13,6 @@ After the final message is sent or fetched from the datahub, this message is sli
 ![Main Message](gmaps_main_message.jpg) ![Final Message](gmaps_final_message.jpg)
 
 As the underlaying VDV736 situation becomes finally 'closed' after showing the final message for a certain time range, the GTFS-RT service alert ist finally removed from the GTFS-RT stream. GoogleMaps does not see the service alert anymore when fetching data, so it also does not show up the service alert anymore.
+
+## Behaviour in MQTT Streaming
+When using the MQTT streaming functionality, the alerts do not simply disappear, but become deleted using the `is_deleted` flag set to `True` in a last message published to the corresponding MQTT topic after the underlaying VDV736 situation object was 'closed'. This ensures, that all consuming systems using this differential GTFS-RT feed are able to detect that the service alert became invalid and shall be removed.
