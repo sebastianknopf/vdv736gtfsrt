@@ -1,6 +1,8 @@
 # VDV736GTFSRT
 This package provides a VDV736 compatible GTFS-RT ServiceAlerts converter. It uses a publish/subscribe or request/response connection to a VDV736 compliant datahub and publishes GTFS-RT ServiceAlerts via a configurable GET endpoint or alternatively as differential GTFS-RT feed to a MQTT broker.
 
+The project is successfully tested with Google Maps integration and running in production. See examples and more information in the [showroom](/showroom).
+
 ## Basic Idea
 Incident information or service alerts are part of realtime passenger information. However, in most OpenData sets, there're no GTFS-RT or even SIRI-SX alerts available. The purpose of this package is to provide a full VDV736 compliant converter to generate GTFS-RT service alerts.
 
