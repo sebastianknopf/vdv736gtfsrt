@@ -4,7 +4,6 @@ import responses
 import threading
 import unittest
 
-from lxml.objectify import fromstring
 from unittest.mock import patch
 
 from vdv736gtfsrt.mqtt import GtfsRealtimePublisher
@@ -12,12 +11,14 @@ from vdv736gtfsrt.mqtt import GtfsRealtimePublisher
 class GtfsRealtimePublisher_Test(unittest.TestCase):
     
     def setUp(self):
-        xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleServiceDelivery.xml')
+
+        self.responder = responses.RequestsMock()
+        self.responder.start()
+
+        # add first and second request (the same...) with a closing situation
+        xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleServiceDeliveryWithClosingSituation.xml')
         with open(xml_filename, 'r') as xml_file:
             xml_content = xml_file.read()
-        
-        self.responder = responses.RequestsMock(assert_all_requests_are_fired=False)
-        self.responder.start()
 
         self.responder.add(
             responses.POST,
@@ -27,6 +28,28 @@ class GtfsRealtimePublisher_Test(unittest.TestCase):
             status=200
         )
 
+        self.responder.add(
+            responses.POST,
+            'http://127.0.0.1:9091/request',
+            body=xml_content,
+            content_type='application/xml',
+            status=200
+        )
+
+        # add third request with another situation ID in order to make the closing situation disappearing
+        xml_filename = os.path.join(os.path.dirname(__file__), 'data/xml/SampleServiceDeliveryWithChangedSituationId.xml')
+        with open(xml_filename, 'r') as xml_file:
+            xml_content = xml_file.read()
+
+        self.responder.add(
+            responses.POST,
+            'http://127.0.0.1:9091/request',
+            body=xml_content,
+            content_type='application/xml',
+            status=200
+        )
+
+        # disable logging output
         logging.basicConfig(handlers=[logging.NullHandler()])
 
         return super().setUp()
@@ -53,8 +76,6 @@ class GtfsRealtimePublisher_Test(unittest.TestCase):
             '/gtfs/realtime/servicealerts',
             300
         )
-
-        publisher._closing_deletion_expiration = 5
 
         # run publisher with testing patch
         with patch.object(publisher, '_publish_feed_message', side_effect=publish_feed_message_patch):
