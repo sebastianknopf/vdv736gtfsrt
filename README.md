@@ -58,7 +58,7 @@ By default, vdv736gtfsrt uses the more complexe publish/subscribe pattern to act
 Instead of running a GTFS-RT server, you can also run a MQTT publisher. This makes the system fully realtime capable. To run a MQTT publisher, use the command
 
 ```bash
-python -m vdv736gtfsrt mqtt ./config/your-config.yaml -m mqtt://{username}:{password}@{domain}/here/is/your/topic/for/alert/[alertId]
+python -m vdv736gtfsrt mqtt ./config/your-config.yaml -m mqtt://{username}:{password}@{domain}/here/is/your/topic/for/alert/[alertId] -c yourClientId
 ```
 
 or alternatively docker
@@ -71,10 +71,10 @@ docker run
    -v /host/var/log/vdv736gtfsrt/xml:/app/datalog
    -p 9091:9091
    sebastianknopf/vdv736gtfsrt:latest
-   mqtt -m mqtt://{username}:{password}@{domain}/here/is/your/topic/for/alert/[alertId]
+   mqtt -m mqtt://{username}:{password}@{domain}/here/is/your/topic/for/alert/[alertId] -c yourClientID
 ```
 
-Replace `{username}`, `{password}`, `{domain}` by your values. The key `[alertId]` is replaced with the entity ID.
+Replace `{username}`, `{password}`, `{domain}` by your values. The key `[alertId]` is replaced with the entity ID. The parameter `-c` / `--client` is optional to specify a certain client ID at the MQTT broker. Default is `vdv736gtfsrt`.
 
 ### Using Data Logs
 By setting the configuratiion key `app.datalog_enabled` all requests and responses are logged to the directory `./datalog` as raw XML for debugging purposes. When running in Docker, you need to mount a directory on your host to `/app/datalog` to access the XML logs.

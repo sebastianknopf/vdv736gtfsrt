@@ -21,7 +21,7 @@ from vdv736.delivery import SiriDelivery
 
 class GtfsRealtimePublisher:
 
-    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
+    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, client: str, expiration: int) -> None:
         self._expiration: int = expiration
 
         self._last_processed_index: dict = dict()
@@ -83,16 +83,11 @@ class GtfsRealtimePublisher:
         
         self._mqtt_host: str = host
         self._mqtt_port: int = int(port)
-        self._mqtt_reconnect_attempts: int = 0
-        self._mqtt_connection_active: bool = False
         
-        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id='vdv736gtfsrt')
+        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id=client)
 
         if username is not None and password is not None:
             self._mqtt.username_pw_set(username=username, password=password)
-
-        #self._mqtt.on_connect = self._mqtt_on_connect
-        #self._mqtt.on_disconnect = self._mqtt_on_disconnect
 
         self._mqtt.connect(self._mqtt_host, self._mqtt_port)
         self._mqtt.loop_start()
@@ -151,26 +146,6 @@ class GtfsRealtimePublisher:
 
     def quit(self) -> None:
         self._run = False
-
-    def _mqtt_on_connect(self, client, userdata, flags, rc) -> None:
-        if rc == 0:
-            self._logger.info('MQTT connection established successfully')
-            
-            self._mqtt_reconnect_attempts = 0
-            self._mqtt_connection_active = True
-
-    def _mqtt_on_disconnect(self, client, userdata, rc) -> None:
-        self._logger.info('MQTT terminated')
-        
-        self._mqtt_connection_active = False
-        while self._mqtt_reconnect_attempts < 10 or self._mqtt_connection_active:
-            time.sleep(30)
-            
-            self._mqtt.connect(self._mqtt_host, self._mqtt_port)
-            self._mqtt_reconnect_attempts = self._mqtt_reconnect_attempts + 1
-    
-        if not self._mqtt_connection_active:
-            raise RuntimeError('MQTT connection terminated and could not be restarted after 10 attempts')
         
     def _subscriber_status_request(self) -> None:
         if self._subscriber is not None:
