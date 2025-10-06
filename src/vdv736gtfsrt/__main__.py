@@ -32,7 +32,8 @@ def server(config, host, port):
 @cli.command()
 @click.argument('config', default='/app/config/config.yaml')
 @click.option('--mqtt', '-m', help='MQTT connection and topic URI')
-def mqtt(config, mqtt):
+@click.option('--client', '-c', default='vdv736gtfsrt', help='Client-ID for connecting to the MQTT broker')
+def mqtt(config, mqtt, client):
 
     mqtt_uri = urlparse(mqtt)
     mqtt_params = mqtt_uri.netloc.split('@')
@@ -45,7 +46,7 @@ def mqtt(config, mqtt):
         mqtt_username, mqtt_password = mqtt_params[0].split(':')
         mqtt_host, mqtt_port = mqtt_params[1].split(':')
 
-    publisher = GtfsRealtimePublisher(config, mqtt_host, mqtt_port, mqtt_username, mqtt_password, mqtt_topic, 300)
+    publisher = GtfsRealtimePublisher(config, mqtt_host, mqtt_port, mqtt_username, mqtt_password, mqtt_topic, client, 300)
     publisher.run()
 
 

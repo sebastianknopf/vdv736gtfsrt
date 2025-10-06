@@ -1,5 +1,6 @@
 import logging
 import pytz
+import time
 import yaml
 
 from vdv736gtfsrt.config import Configuration
@@ -20,15 +21,15 @@ from vdv736.delivery import SiriDelivery
 
 class GtfsRealtimePublisher:
 
-    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, expiration: int) -> None:
-        self._expiration = expiration
+    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, client_id: str, expiration: int) -> None:
+        self._expiration: int = expiration
 
         self._last_processed_index: dict = dict()
 
-        self._run = True
+        self._run: bool = True
         
         # create internal logger instance
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
+        logging.basicConfig(format="[%(levelname)s] %(asctime)s %(message)s", level=logging.INFO)
 
         self._logger = logging.getLogger()
 
@@ -79,13 +80,17 @@ class GtfsRealtimePublisher:
         topic = topic.replace('$', '_')
         
         self._topic = topic
-
-        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5)
+        
+        self._mqtt_host: str = host
+        self._mqtt_port: int = int(port)
+        
+        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id=client_id)
 
         if username is not None and password is not None:
             self._mqtt.username_pw_set(username=username, password=password)
 
-        self._mqtt.connect(host, int(port))
+        self._mqtt.connect(self._mqtt_host, self._mqtt_port)
+        self._mqtt.loop_start()
 
     def run(self) -> None:
         
@@ -110,6 +115,10 @@ class GtfsRealtimePublisher:
 
                 self._subscriber_status_timer.stop()
 
+                # we don't want a re-connection here, so stop the event loop before disconnection
+                self._mqtt.loop_stop()
+                self._mqtt.disconnect()
+
         elif self._config['app']['pattern'] == 'request/response':
             
             # start subscriber using request/response mode
@@ -127,7 +136,8 @@ class GtfsRealtimePublisher:
                     pass
 
                 self._data_update_timer.stop()
-
+                
+                # we don't want a re-connection here, so stop the event loop before disconnection
                 self._mqtt.loop_stop()
                 self._mqtt.disconnect()
 
@@ -136,8 +146,7 @@ class GtfsRealtimePublisher:
 
     def quit(self) -> None:
         self._run = False
-
-
+        
     def _subscriber_status_request(self) -> None:
         if self._subscriber is not None:
             self._subscriber.status()
