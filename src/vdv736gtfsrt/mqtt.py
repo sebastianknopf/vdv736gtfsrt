@@ -91,10 +91,11 @@ class GtfsRealtimePublisher:
         if username is not None and password is not None:
             self._mqtt.username_pw_set(username=username, password=password)
 
-        self._mqtt.on_connect = self._mqtt_on_connect
-        self._mqtt.on_disconnect = self._mqtt_on_disconnect
+        #self._mqtt.on_connect = self._mqtt_on_connect
+        #self._mqtt.on_disconnect = self._mqtt_on_disconnect
 
         self._mqtt.connect(self._mqtt_host, self._mqtt_port)
+        self._mqtt.loop_start()
 
     def run(self) -> None:
         
@@ -119,6 +120,7 @@ class GtfsRealtimePublisher:
 
                 self._subscriber_status_timer.stop()
 
+                # we don't want a re-connection here, so stop the event loop before disconnection
                 self._mqtt.loop_stop()
                 self._mqtt.disconnect()
 
@@ -139,7 +141,8 @@ class GtfsRealtimePublisher:
                     pass
 
                 self._data_update_timer.stop()
-
+                
+                # we don't want a re-connection here, so stop the event loop before disconnection
                 self._mqtt.loop_stop()
                 self._mqtt.disconnect()
 
