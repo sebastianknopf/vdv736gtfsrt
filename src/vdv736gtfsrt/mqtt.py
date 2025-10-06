@@ -21,7 +21,7 @@ from vdv736.delivery import SiriDelivery
 
 class GtfsRealtimePublisher:
 
-    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, client: str, expiration: int) -> None:
+    def __init__(self, config_filename: str, host: str, port: str, username: str, password: str, topic: str, client_id: str, expiration: int) -> None:
         self._expiration: int = expiration
 
         self._last_processed_index: dict = dict()
@@ -84,7 +84,7 @@ class GtfsRealtimePublisher:
         self._mqtt_host: str = host
         self._mqtt_port: int = int(port)
         
-        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id=client)
+        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id=client_id)
 
         if username is not None and password is not None:
             self._mqtt.username_pw_set(username=username, password=password)
