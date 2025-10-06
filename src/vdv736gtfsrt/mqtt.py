@@ -86,7 +86,7 @@ class GtfsRealtimePublisher:
         self._mqtt_reconnect_attempts: int = 0
         self._mqtt_connection_active: bool = False
         
-        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5)
+        self._mqtt = client.Client(client.CallbackAPIVersion.VERSION2, protocol=client.MQTTv5, client_id='vdv736gtfsrt')
 
         if username is not None and password is not None:
             self._mqtt.username_pw_set(username=username, password=password)
