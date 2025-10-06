@@ -29,7 +29,7 @@ class GtfsRealtimePublisher:
         self._run: bool = True
         
         # create internal logger instance
-        logging.basicConfig(level=logging.INFO, format="%(levelname)s:\t %(message)s")
+        logging.basicConfig(format="[%(levelname)s] %(asctime)s %(message)s", level=logging.INFO)
 
         self._logger = logging.getLogger()
 
