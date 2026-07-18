@@ -1,3 +1,6 @@
+# Deprecated
+This project has been deprecated and will not be further developed. Please refer to [EchoGTFS](https://github.com/sebastianknopf/echogtfs) as modern alternative.
+
 # VDV736GTFSRT
 This package provides a VDV736 compatible GTFS-RT ServiceAlerts converter. It uses a publish/subscribe or request/response connection to a VDV736 compliant datahub and publishes GTFS-RT ServiceAlerts via a configurable GET endpoint or alternatively as differential GTFS-RT feed to a MQTT broker.
 
